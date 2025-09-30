@@ -193,34 +193,54 @@
       mapOverlaySubtitle.textContent = isRunning?'Seu dispositivo está sendo rastreado em tempo real':'Ative o GPS para iniciar';
     }
 
-    if ("geolocation" in navigator){
-      navigator.geolocation.watchPosition(
-        pos=>{
-          const lat=pos.coords.latitude;
-          const lng=pos.coords.longitude;
-          const accuracy=pos.coords.accuracy;
+    function initGeolocation(){
+      if(!("geolocation" in navigator)){ alert("Seu navegador não suporta geolocalização."); return; }
 
+      // Solicita permissão inicial
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          const accuracy = pos.coords.accuracy;
           moveMarkerTo(lat,lng,accuracy);
           map.setView([lat,lng],16);
-
           setRouteStatus(true);
+          const now = new Date();
+          etaText.textContent = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')} (agora)`;
 
-          const now=new Date();
-          const h=String(now.getHours()).padStart(2,'0');
-          const m=String(now.getMinutes()).padStart(2,'0');
-          etaText.textContent = `${h}:${m} (agora)`;
+          // Agora inicia watchPosition
+          navigator.geolocation.watchPosition(
+            pos=>{
+              const lat=pos.coords.latitude;
+              const lng=pos.coords.longitude;
+              const accuracy=pos.coords.accuracy;
+              moveMarkerTo(lat,lng,accuracy);
+              map.setView([lat,lng],16);
+              setRouteStatus(true);
+              const now=new Date();
+              etaText.textContent = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')} (agora)`;
+            },
+            err=>{
+              console.error("Erro ao obter localização:",err);
+              setRouteStatus(false);
+              mapOverlaySubtitle.textContent="Permita acesso à localização no navegador";
+            },
+            { enableHighAccuracy:true, maximumAge:1000 }
+          );
         },
         err=>{
-          console.error("Erro ao obter localização:",err);
+          console.error("Permissão negada ou erro inicial:",err);
           setRouteStatus(false);
           mapOverlaySubtitle.textContent="Permita acesso à localização no navegador";
         },
-        { enableHighAccuracy:true, maximumAge:1000 }
+        { enableHighAccuracy:true }
       );
-    } else { alert("Seu navegador não suporta geolocalização."); }
+    }
 
     centerBtn.addEventListener('click',()=>{ map.panTo(userMarker.getLatLng()); });
-    setRouteStatus(false);
+
+    // Inicializa geolocalização ao carregar
+    initGeolocation();
   </script>
 </body>
 </html>
