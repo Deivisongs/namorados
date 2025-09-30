@@ -1,179 +1,297 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Acompanhamento de Rota</title>
-  
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Acompanhamento de Rota - Demo</title>
+
   <!-- Leaflet CSS -->
-  <link 
-    rel="stylesheet" 
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
-    integrity="sha256-sA+4pskP3Qai9n4fVJGe0rXe3GkN3RX9R2z9g1h0h38=" 
-    crossorigin=""
-  />
-  
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-sA+e2G8m0QwWvT6tG0gWQp6Qe6w9Gq8t6jGk6b9X+3s=" crossorigin=""/>
+
+  <!-- Google font (optional) -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #fafafa;
-      margin: 0;
-      padding: 0;
-      color: #333;
+    :root{
+      --bg:#FCF7F0;
+      --card:#ffffff;
+      --muted:#7b8794;
+      --accent:#0b5ed7;
+      --green:#16a34a;
+      --yellow:#f59e0b;
+      --blue:#0b5ed7;
+      --radius:12px;
+      font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
     }
-    .container {
-      max-width: 500px;
-      margin: auto;
-      padding: 16px;
+    html,body{
+      height:100%;
+      margin:0;
+      background:var(--bg);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      color:#0f1724;
     }
-    h2, h3 {
-      margin: 8px 0;
-    }
+
+    /* Layout */
+    .page { max-width: 760px; margin: 18px auto; padding: 18px; }
+
+    .header { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .title { font-size:28px; font-weight:800; margin:0; }
+    .subtitle { color:var(--muted); margin-top:6px; font-size:14px; }
+
     .card {
-      background: #fff;
-      border-radius: 8px;
-      padding: 16px;
-      margin-bottom: 16px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: 0 6px 18px rgba(15,23,36,0.06);
+      padding:18px;
+      margin-top:16px;
     }
-    .status {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+
+    /* Map area */
+    #mapCard { padding:0; overflow:hidden; position:relative; }
+    #map { height: 260px; min-height: 220px; width: 100%; }
+    .map-overlay {
+      position:absolute;
+      left:50%;
+      transform:translateX(-50%);
+      top:20%;
+      z-index:400;
+      background:rgba(255,255,255,0.98);
+      padding:16px 20px;
+      border-radius:12px;
+      box-shadow:0 8px 24px rgba(15,23,36,0.08);
+      display:flex;
+      align-items:center;
+      gap:12px;
+      width:70%;
+      max-width:420px;
+      text-align:center;
     }
-    .badge {
-      background: #0057e7;
-      color: #fff;
-      padding: 4px 10px;
-      border-radius: 16px;
-      font-size: 12px;
+    .map-overlay .icon {
+      width:42px;height:42px;border-radius:50%;
+      background:linear-gradient(180deg,#ffcc33,#ffb020);
+      display:flex;align-items:center;justify-content:center;
+      font-size:20px;
     }
-    /* 🔑 Garantir altura e largura do mapa */
-    #map {
-      height: 250px;
-      width: 100%;
-      border-radius: 8px;
+    .map-overlay h4 { margin:0; font-weight:700; font-size:16px; }
+    .map-overlay p { margin:0; color:var(--muted); font-size:13px; }
+
+    /* Status card */
+    .status-row { display:flex; align-items:flex-start; gap:12px; margin-top:8px; }
+    .status-left { flex:1; }
+    .badge { background:var(--blue); color:#fff; padding:6px 12px; border-radius:999px; font-weight:700; font-size:13px; }
+    .person { font-weight:700; font-size:16px; margin:0; }
+    .muted { color:var(--muted); margin-top:6px; }
+
+    /* Progress list */
+    .progress-list { display:flex; flex-direction:column; gap:12px; margin-top:10px; }
+    .step { display:flex; gap:12px; align-items:flex-start; }
+    .dot { flex-shrink:0; width:14px;height:14px;border-radius:50%; margin-top:4px; box-shadow:inset 0 -2px 0 rgba(0,0,0,0.06); }
+    .step .content { flex:1; }
+    .step .title { font-weight:700; margin:0; }
+    .time { color:var(--muted); font-size:13px; margin-top:6px; }
+
+    /* small screens */
+    @media (max-width:520px){
+      .map-overlay { width:86%; top:18%; padding:12px; }
+      .title { font-size:22px; }
     }
-    .progress {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-    .progress li {
-      margin: 8px 0;
-      padding-left: 20px;
-      position: relative;
-    }
-    .progress li::before {
-      content: "";
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      position: absolute;
-      left: 0;
-      top: 6px;
-    }
-    .done::before {
-      background: green;
-    }
-    .current::before {
-      background: orange;
-    }
-    .pending::before {
-      background: #ccc;
-    }
+
+    /* control footer */
+    .controls { display:flex; gap:8px; margin-top:12px; }
+    .btn { padding:10px 14px; border-radius:10px; border:0; font-weight:700; cursor:pointer; }
+    .btn-primary { background:var(--blue); color:white; }
+    .btn-ghost { background:transparent; border:1px solid rgba(15,23,36,0.06); color:var(--muted); }
+
+    .link-plate { color:var(--blue); text-decoration:underline; font-weight:600; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>Olá, Maria!</h2>
-    <p>Acompanhe o transporte do seu filho</p>
-
-    <div class="card">
-      <h3>Localização do Ônibus</h3>
-      <div id="map"></div>
-    </div>
-
-    <div class="card">
-      <div class="status">
-        <h3>Status da Rota</h3>
-        <span class="badge">Em andamento</span>
+  <div class="page">
+    <div class="header">
+      <div>
+        <h1 class="title">Olá, Maria!</h1>
+        <div class="subtitle">Acompanhe o transporte do seu filho</div>
       </div>
-      <p><b>João Silva</b><br>Rota Manhã - Escola Municipal</p>
-      <p><b>Chegada Prevista:</b> aguardando localização do ônibus</p>
-      <p><b>Motorista:</b> Sr. Carlos<br>Placa: ABC-1234</p>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <button class="btn btn-ghost" title="Notificações">🔔</button>
+        <button class="btn btn-ghost" title="Sair">⤴️</button>
+      </div>
     </div>
 
+    <!-- Map card -->
+    <div class="card" id="mapCard">
+      <div id="map"></div>
+      <div id="mapOverlay" class="map-overlay" aria-live="polite">
+        <div class="icon">📍</div>
+        <div>
+          <h4 id="mapOverlayTitle">Aguardando localização</h4>
+          <p id="mapOverlaySubtitle">Ative o GPS para iniciar</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status card -->
     <div class="card">
-      <h3>Progresso da Rota</h3>
-      <ul class="progress">
-        <li class="done">Rota iniciada - 07:30</li>
-        <li class="current">Indo buscar seu filho - 07:45 (atual)</li>
-        <li class="pending">Aluno embarcou - aguardando...</li>
-        <li class="pending">A caminho da escola - aguardando...</li>
-      </ul>
+      <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+        <div>
+          <div style="font-weight:800; font-size:18px;">Status da Rota</div>
+        </div>
+        <div class="badge" id="routeStatusBadge">Pausada</div>
+      </div>
+
+      <div class="status-row">
+        <div class="status-left">
+          <div style="display:flex; gap:12px; align-items:center;">
+            <div style="width:36px;height:36px;border-radius:9px;background:linear-gradient(180deg,#ffedcc,#ffe6b0);display:flex;justify-content:center;align-items:center;">👤</div>
+            <div>
+              <div class="person">João Silva</div>
+              <div class="muted">Rota Manhã - Escola Municipal</div>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:12px; margin-top:12px; align-items:center;">
+            <div style="width:36px;height:36px;border-radius:9px;background:linear-gradient(180deg,#e6f7ee,#d9f1e6);display:flex;justify-content:center;align-items:center;">⏱️</div>
+            <div>
+              <div style="font-weight:700;">Chegada Prevista</div>
+              <div class="muted" id="etaText">--:--</div>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:12px; margin-top:12px; align-items:center;">
+            <div style="width:36px;height:36px;border-radius:9px;background:linear-gradient(180deg,#e6f0ff,#dbe8ff);display:flex;justify-content:center;align-items:center;">🚌</div>
+            <div>
+              <div style="font-weight:700;">Motorista: Sr. Carlos</div>
+              <div class="muted">Placa: <span class="link-plate">ABC-1234</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress card -->
+    <div class="card">
+      <div style="font-weight:800; font-size:18px;">Progresso da Rota</div>
+      <div class="progress-list">
+        <div class="step">
+          <div class="dot" style="background:var(--green);"></div>
+          <div class="content">
+            <div class="title">Rota iniciada</div>
+            <div class="time">07:30</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="dot" style="background:var(--yellow);"></div>
+          <div class="content">
+            <div class="title">Indo buscar seu filho</div>
+            <div class="time">--:-- (atual)</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="dot" style="background:#e6e9ec;"></div>
+          <div class="content">
+            <div class="title">Aluno embarcou</div>
+            <div class="time">Aguardando...</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="dot" style="background:#e6e9ec;"></div>
+          <div class="content">
+            <div class="title">A caminho da escola</div>
+            <div class="time">Aguardando...</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="controls" style="margin-top:14px;">
+        <button class="btn btn-ghost" id="centerBtn">Centralizar ônibus</button>
+      </div>
     </div>
   </div>
 
   <!-- Leaflet JS -->
-  <script 
-    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
-    integrity="sha256-o9N1j7kGStp1oq7ZoQ+Yjz5XKqT+Q5pW4j5v1V+3Qn8=" 
-    crossorigin="">
-  </script>
-  <script>
-    // Inicializa o mapa
-    var map = L.map('map').setView([0, 0], 13);
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-o9N1jHn2k3w7mY1Z7Bx3qM6p3vRv/9e7i7u4hQ/jr3M=" crossorigin=""></script>
 
-    // Adiciona camada de mapa
+  <script>
+    // ----- Elementos da tela -----
+    const routeStatusBadge = document.getElementById('routeStatusBadge');
+    const mapOverlayTitle = document.getElementById('mapOverlayTitle');
+    const mapOverlaySubtitle = document.getElementById('mapOverlaySubtitle');
+    const etaText = document.getElementById('etaText');
+    const centerBtn = document.getElementById('centerBtn');
+
+    // ----- Inicializa o mapa -----
+    const map = L.map('map', { zoomControl: true }).setView([0, 0], 15);
+
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap'
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
-    // Ícone personalizado (ônibus)
-    var busIcon = L.icon({
-      iconUrl: 'https://cdn-icons-png.flaticon.com/512/61/61205.png',
-      iconSize: [32, 32],
-      iconAnchor: [16, 32],
-      popupAnchor: [0, -32]
+    // Ícone customizado para o usuário
+    const userIcon = L.divIcon({
+      className: '',
+      html: '<div style="transform:translate(-50%,-50%);">📍</div>',
+      iconSize: [36,36],
+      iconAnchor: [18,18]
     });
 
-    var marker;
+    // Marcador e círculo de precisão
+    const userMarker = L.marker([0,0], { icon: userIcon }).addTo(map);
+    const accuracyCircle = L.circle([0,0], { radius:0, color:'#cce5ff', fillColor:'#cce5ff', opacity:0.4 }).addTo(map);
 
-    // Geolocalização em tempo real
-    if (navigator.geolocation) {
-      navigator.geolocation.watchPosition(
-        function(position) {
-          var lat = position.coords.latitude;
-          var lon = position.coords.longitude;
-
-          if (!marker) {
-            marker = L.marker([lat, lon], { icon: busIcon })
-              .addTo(map)
-              .bindPopup("Sua localização (ônibus)");
-            map.setView([lat, lon], 15);
-          } else {
-            marker.setLatLng([lat, lon]);
-            map.panTo([lat, lon]);
-          }
-        },
-        function(error) {
-          console.error("Erro ao obter localização: ", error);
-          alert("Não foi possível acessar sua localização.");
-        },
-        {
-          enableHighAccuracy: true,
-          maximumAge: 0
-        }
-      );
-    } else {
-      alert("Geolocalização não suportada pelo seu navegador.");
+    // Atualiza status da rota
+    function setRouteStatus(isRunning){
+      routeStatusBadge.textContent = isRunning ? 'Em andamento' : 'Pausada';
+      mapOverlayTitle.textContent = isRunning ? 'Localização encontrada' : 'Aguardando localização';
+      mapOverlaySubtitle.textContent = isRunning ? 'Seu dispositivo está sendo rastreado em tempo real' : 'Ative o GPS para iniciar';
     }
 
-    // Corrige bug de renderização do mapa
-    setTimeout(() => {
-      map.invalidateSize();
-    }, 500);
+    // Atualiza marcador e círculo
+    function moveMarkerTo(lat, lng, accuracy){
+      userMarker.setLatLng([lat,lng]);
+      accuracyCircle.setLatLng([lat,lng]).setRadius(accuracy || 20);
+    }
+
+    // ----- Geolocalização em tempo real -----
+    if ("geolocation" in navigator) {
+      navigator.geolocation.watchPosition(
+        (pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          const accuracy = pos.coords.accuracy;
+
+          moveMarkerTo(lat, lng, accuracy);
+          map.setView([lat, lng], 16);
+
+          setRouteStatus(true);
+
+          const now = new Date();
+          const h = String(now.getHours()).padStart(2,'0');
+          const m = String(now.getMinutes()).padStart(2,'0');
+          etaText.textContent = `${h}:${m} (agora)`;
+        },
+        (err) => {
+          console.error("Erro ao obter localização:", err);
+          setRouteStatus(false);
+          mapOverlaySubtitle.textContent = "Permita acesso à localização no navegador";
+        },
+        { enableHighAccuracy: true, maximumAge: 1000 }
+      );
+    } else {
+      alert("Seu navegador não suporta geolocalização.");
+    }
+
+    // Botão centralizar
+    centerBtn.addEventListener('click', ()=>{
+      const pos = userMarker.getLatLng();
+      map.panTo(pos);
+    });
+
+    // Status inicial
+    setRouteStatus(false);
   </script>
 </body>
 </html>
