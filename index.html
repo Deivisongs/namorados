@@ -1,460 +1,173 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Acompanhamento de Rota - Demo</title>
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acompanhamento de Rota</title>
+  
   <!-- Leaflet CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    integrity="sha256-sA+e2G8m0QwWvT6tG0gWQp6Qe6w9Gq8t6jGk6b9X+3s=" crossorigin=""/>
-
-  <!-- Google font (optional) -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-
+  <link 
+    rel="stylesheet" 
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+    integrity="sha256-sA+4pskP3Qai9n4fVJGe0rXe3GkN3RX9R2z9g1h0h38=" 
+    crossorigin=""
+  />
+  
   <style>
-    :root{
-      --bg:#FCF7F0;
-      --card:#ffffff;
-      --muted:#7b8794;
-      --accent:#0b5ed7;
-      --green:#16a34a;
-      --yellow:#f59e0b;
-      --blue:#0b5ed7;
-      --radius:12px;
-      font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    body {
+      font-family: Arial, sans-serif;
+      background: #fafafa;
+      margin: 0;
+      padding: 0;
+      color: #333;
     }
-    html,body{
-      height:100%;
-      margin:0;
-      background:var(--bg);
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
-      color:#0f1724;
+    .container {
+      max-width: 500px;
+      margin: auto;
+      padding: 16px;
     }
-
-    /* Layout */
-    .page {
-      max-width: 760px;
-      margin: 18px auto;
-      padding: 18px;
+    h2, h3 {
+      margin: 8px 0;
     }
-
-    .header {
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-    }
-    .title {
-      font-size:28px;
-      font-weight:800;
-      margin:0;
-    }
-    .subtitle { color:var(--muted); margin-top:6px; font-size:14px; }
-
     .card {
-      background: var(--card);
-      border-radius: var(--radius);
-      box-shadow: 0 6px 18px rgba(15,23,36,0.06);
-      padding:18px;
-      margin-top:16px;
+      background: #fff;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
-
-    /* Map area */
-    #mapCard {
-      padding:0;
-      overflow:hidden;
+    .status {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
-    #map {
-      height: 260px;
-      min-height: 220px;
-      width: 100%;
-    }
-    .map-overlay {
-      position:absolute;
-      left:50%;
-      transform:translateX(-50%);
-      top:20%;
-      z-index:400;
-      background:rgba(255,255,255,0.98);
-      padding:16px 20px;
-      border-radius:12px;
-      box-shadow:0 8px 24px rgba(15,23,36,0.08);
-      display:flex;
-      align-items:center;
-      gap:12px;
-      width:70%;
-      max-width:420px;
-      text-align:center;
-    }
-    .map-overlay .icon {
-      width:42px;height:42px;border-radius:50%;
-      background:linear-gradient(180deg,#ffcc33,#ffb020);
-      display:flex;align-items:center;justify-content:center;
-      font-size:20px;
-    }
-    .map-overlay h4 { margin:0; font-weight:700; font-size:16px; }
-    .map-overlay p { margin:0; color:var(--muted); font-size:13px; }
-
-    /* Status card */
-    .status-row { display:flex; align-items:flex-start; gap:12px; margin-top:8px; }
-    .status-left { flex:1; }
     .badge {
-      background:var(--blue);
-      color:#fff;
-      padding:6px 12px;
-      border-radius:999px;
-      font-weight:700;
-      font-size:13px;
+      background: #0057e7;
+      color: #fff;
+      padding: 4px 10px;
+      border-radius: 16px;
+      font-size: 12px;
     }
-    .person { font-weight:700; font-size:16px; margin:0; }
-    .muted { color:var(--muted); margin-top:6px; }
-
-    /* Progress list */
-    .progress-list { display:flex; flex-direction:column; gap:12px; margin-top:10px; }
-    .step { display:flex; gap:12px; align-items:flex-start; }
-    .dot {
-      flex-shrink:0;
-      width:14px;height:14px;border-radius:50%;
-      margin-top:4px;
-      box-shadow:inset 0 -2px 0 rgba(0,0,0,0.06);
+    .map {
+      height: 200px;
+      border-radius: 8px;
+      margin-top: 8px;
     }
-    .step .content { flex:1; }
-    .step .title { font-weight:700; margin:0; }
-    .time { color:var(--muted); font-size:13px; margin-top:6px; }
-
-    /* small screens */
-    @media (max-width:520px){
-      .map-overlay { width:86%; top:18%; padding:12px; }
-      .title { font-size:22px; }
+    .progress {
+      list-style: none;
+      padding: 0;
+      margin: 0;
     }
-
-    /* control footer */
-    .controls { display:flex; gap:8px; margin-top:12px; }
-    .btn {
-      padding:10px 14px;
-      border-radius:10px;
-      border:0;
-      font-weight:700;
-      cursor:pointer;
+    .progress li {
+      margin: 8px 0;
+      padding-left: 20px;
+      position: relative;
     }
-    .btn-primary { background:var(--blue); color:white; }
-    .btn-ghost { background:transparent; border:1px solid rgba(15,23,36,0.06); color:var(--muted); }
-
-    /* small helper */
-    .link-plate { color:var(--blue); text-decoration:underline; font-weight:600; }
+    .progress li::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      position: absolute;
+      left: 0;
+      top: 6px;
+    }
+    .done::before {
+      background: green;
+    }
+    .current::before {
+      background: orange;
+    }
+    .pending::before {
+      background: #ccc;
+    }
   </style>
 </head>
 <body>
-  <div class="page">
-    <div class="header">
-      <div>
-        <h1 class="title">Olá, Maria!</h1>
-        <div class="subtitle">Acompanhe o transporte do seu filho</div>
-      </div>
-      <div style="display:flex; gap:10px; align-items:center;">
-        <button class="btn btn-ghost" title="Notificações">🔔</button>
-        <button class="btn btn-ghost" title="Sair">⤴️</button>
-      </div>
-    </div>
+  <div class="container">
+    <h2>Olá, Maria!</h2>
+    <p>Acompanhe o transporte do seu filho</p>
 
-    <!-- Map card -->
-    <div class="card" id="mapCard" style="position:relative;">
-      <div id="map"></div>
-
-      <div id="mapOverlay" class="map-overlay" aria-live="polite">
-        <div class="icon">📍</div>
-        <div>
-          <h4 id="mapOverlayTitle">Aguardando localização do ônibus</h4>
-          <p id="mapOverlaySubtitle">O motorista ainda não iniciou a rota</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Status card -->
     <div class="card">
-      <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-        <div>
-          <div style="font-weight:800; font-size:18px;">Status da Rota</div>
-        </div>
-        <div class="badge" id="routeStatusBadge">Em andamento</div>
-      </div>
-
-      <div class="status-row">
-        <div class="status-left">
-          <div style="display:flex; gap:12px; align-items:center;">
-            <div style="width:36px;height:36px;border-radius:9px;background:linear-gradient(180deg,#ffedcc,#ffe6b0);display:flex;justify-content:center;align-items:center;">👤</div>
-            <div>
-              <div class="person">João Silva</div>
-              <div class="muted">Rota Manhã - Escola Municipal</div>
-            </div>
-          </div>
-
-          <div style="display:flex; gap:12px; margin-top:12px; align-items:center;">
-            <div style="width:36px;height:36px;border-radius:9px;background:linear-gradient(180deg,#e6f7ee,#d9f1e6);display:flex;justify-content:center;align-items:center;">⏱️</div>
-            <div>
-              <div style="font-weight:700;">Chegada Prevista</div>
-              <div class="muted" id="etaText">Aguardando localização do ônibus</div>
-            </div>
-          </div>
-
-          <div style="display:flex; gap:12px; margin-top:12px; align-items:center;">
-            <div style="width:36px;height:36px;border-radius:9px;background:linear-gradient(180deg,#e6f0ff,#dbe8ff);display:flex;justify-content:center;align-items:center;">🚌</div>
-            <div>
-              <div style="font-weight:700;">Motorista: Sr. Carlos</div>
-              <div class="muted">Placa: <span class="link-plate">ABC-1234</span></div>
-            </div>
-          </div>
-
-        </div>
-      </div>
+      <h3>Localização do Ônibus</h3>
+      <div id="map" class="map"></div>
     </div>
 
-    <!-- Progress card -->
     <div class="card">
-      <div style="font-weight:800; font-size:18px;">Progresso da Rota</div>
-      <div class="progress-list">
-        <div class="step">
-          <div class="dot" style="background:var(--green);"></div>
-          <div class="content">
-            <div class="title" id="step1Title">Rota iniciada</div>
-            <div class="time" id="step1Time">07:30</div>
-          </div>
-        </div>
-
-        <div class="step">
-          <div class="dot" id="step2Dot" style="background:var(--yellow);"></div>
-          <div class="content">
-            <div class="title" id="step2Title">Indo buscar seu filho</div>
-            <div class="time" id="step2Time">--:-- (atual)</div>
-          </div>
-        </div>
-
-        <div class="step">
-          <div class="dot" style="background:#e6e9ec;"></div>
-          <div class="content">
-            <div class="title">Aluno embarcou</div>
-            <div class="time">Aguardando...</div>
-          </div>
-        </div>
-
-        <div class="step">
-          <div class="dot" style="background:#e6e9ec;"></div>
-          <div class="content">
-            <div class="title">A caminho da escola</div>
-            <div class="time">Aguardando...</div>
-          </div>
-        </div>
+      <div class="status">
+        <h3>Status da Rota</h3>
+        <span class="badge">Em andamento</span>
       </div>
+      <p><b>João Silva</b><br>Rota Manhã - Escola Municipal</p>
+      <p><b>Chegada Prevista:</b> aguardando localização do ônibus</p>
+      <p><b>Motorista:</b> Sr. Carlos<br>Placa: ABC-1234</p>
+    </div>
 
-      <div class="controls" style="margin-top:14px;">
-        <button class="btn btn-primary" id="startSimBtn">Iniciar simulação</button>
-        <button class="btn btn-ghost" id="stopSimBtn">Parar simulação</button>
-        <button class="btn btn-ghost" id="centerBtn">Centralizar ônibus</button>
-      </div>
-
-      <p style="margin-top:12px; color:var(--muted); font-size:13px;">
-        Dica: para integrar a localização real, substitua a função <code>simulatePosition()</code> pela sua chamada de API que retorne lat/lng e estado da rota.
-      </p>
+    <div class="card">
+      <h3>Progresso da Rota</h3>
+      <ul class="progress">
+        <li class="done">Rota iniciada - 07:30</li>
+        <li class="current">Indo buscar seu filho - 07:45 (atual)</li>
+        <li class="pending">Aluno embarcou - aguardando...</li>
+        <li class="pending">A caminho da escola - aguardando...</li>
+      </ul>
     </div>
   </div>
 
   <!-- Leaflet JS -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    integrity="sha256-o9N1jHn2k3w7mY1Z7Bx3qM6p3vRv/9e7i7u4hQ/jr3M=" crossorigin=""></script>
-
+  <script 
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
+    integrity="sha256-o9N1j7kGStp1oq7ZoQ+Yjz5XKqT+Q5pW4j5v1V+3Qn8=" 
+    crossorigin="">
+  </script>
   <script>
-    // ----- Configurações iniciais -----
-    const initialPosition = { lat: -23.55052, lng: -46.633308 }; // exemplo: São Paulo
-    const routeStatusBadge = document.getElementById('routeStatusBadge');
-    const mapOverlayTitle = document.getElementById('mapOverlayTitle');
-    const mapOverlaySubtitle = document.getElementById('mapOverlaySubtitle');
-    const etaText = document.getElementById('etaText');
-    const startBtn = document.getElementById('startSimBtn');
-    const stopBtn = document.getElementById('stopSimBtn');
-    const centerBtn = document.getElementById('centerBtn');
+    // Inicializa o mapa sem posição
+    var map = L.map('map').setView([0, 0], 13);
 
-    // ----- Inicializa o mapa -----
-    const map = L.map('map', { zoomControl: false }).setView([initialPosition.lat, initialPosition.lng], 13);
-
-    // Tile layer OpenStreetMap
+    // Adiciona camada de mapa
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; OpenStreetMap contributors'
+      attribution: '© OpenStreetMap'
     }).addTo(map);
 
-    // Marker do ônibus (custom icon)
-    const busIcon = L.divIcon({
-      className: '',
-      html: '<div style="transform:translate(-50%,-50%);"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="4" width="22" height="13" rx="2" fill="#0b5ed7"/><circle cx="7" cy="18.5" r="1.5" fill="#222"/><circle cx="17" cy="18.5" r="1.5" fill="#222"/><rect x="4" y="7" width="6" height="5" fill="#fff" rx="0.6"/><rect x="14" y="7" width="4" height="5" fill="#fff" rx="0.6"/></svg></div>',
-      iconSize: [36,36],
-      iconAnchor: [18,18]
+    // Ícone do ônibus
+    var busIcon = L.icon({
+      iconUrl: 'https://cdn-icons-png.flaticon.com/512/61/61205.png',
+      iconSize: [32, 32],
+      iconAnchor: [16, 32],
+      popupAnchor: [0, -32]
     });
 
-    // start marker hidden until route started
-    const busMarker = L.marker([initialPosition.lat, initialPosition.lng], { icon: busIcon }).addTo(map);
-    const accuracyCircle = L.circle([initialPosition.lat, initialPosition.lng], { radius: 20, color: '#cce5ff', fillColor: '#cce5ff', opacity:0.4 }).addTo(map);
+    var marker;
 
-    // Example stops (you can load from your DB)
-    const stops = [
-      { name: 'Casa', lat: initialPosition.lat + 0.013, lng: initialPosition.lng - 0.016 },
-      { name: 'Escola', lat: initialPosition.lat - 0.012, lng: initialPosition.lng + 0.02 }
-    ];
-    stops.forEach(s => {
-      L.circleMarker([s.lat, s.lng], { radius:7, color:'#0b5ed7', fillColor:'#fff', weight:2 }).addTo(map)
-        .bindTooltip(s.name, { direction:'top' });
-    });
+    // Função para atualizar localização em tempo real
+    if (navigator.geolocation) {
+      navigator.geolocation.watchPosition(
+        function(position) {
+          var lat = position.coords.latitude;
+          var lon = position.coords.longitude;
 
-    // ----- Simulação / Atualização de posição -----
-    let simInterval = null;
-    let simPath = [];
-    let simIndex = 0;
-    let routeStarted = false;
-
-    // Create a straight-line path from start to first stop then to second stop (for demo)
-    function buildSimPath(){
-      simPath = [];
-      const start = { lat: initialPosition.lat - 0.02, lng: initialPosition.lng - 0.02 };
-      const via1 = stops[0];
-      const via2 = stops[1];
-      // helper to interpolate
-      function interp(a,b,steps){
-        for(let i=0;i<steps;i++){
-          const t = i/(steps-1);
-          simPath.push({
-            lat: a.lat + (b.lat-a.lat)*t,
-            lng: a.lng + (b.lng-a.lng)*t
-          });
-        }
-      }
-      interp(start, via1, 40);
-      interp(via1, via2, 60);
-    }
-
-    buildSimPath();
-
-    function setRouteStatus(isRunning){
-      routeStarted = isRunning;
-      routeStatusBadge.textContent = isRunning ? 'Em andamento' : 'Pausada';
-      mapOverlayTitle.textContent = isRunning ? 'Ônibus em rota' : 'Aguardando localização do ônibus';
-      mapOverlaySubtitle.textContent = isRunning ? 'Motorista está a caminho' : 'O motorista ainda não iniciou a rota';
-    }
-
-    // Smooth move marker to new latlng
-    function moveMarkerTo(lat, lng){
-      busMarker.setLatLng([lat,lng]);
-      accuracyCircle.setLatLng([lat,lng]);
-    }
-
-    // Update ETA text (simple estimation)
-    function updateETA(currentIndex){
-      const remain = simPath.length - currentIndex;
-      const speedMetersPerSec = 8; // fake average ~ 8 m/s (~28 km/h)
-      // approximate distance using haversine sums - but simple: assume ~100m per step
-      const seconds = remain * 10; // our simulation step ~10s equivalent
-      if (!routeStarted) {
-        etaText.textContent = 'Aguardando localização do ônibus';
-        return;
-      }
-      const minutes = Math.max(1, Math.round(seconds/60));
-      const now = new Date();
-      const eta = new Date(now.getTime() + minutes*60000);
-      const h = String(eta.getHours()).padStart(2,'0');
-      const m = String(eta.getMinutes()).padStart(2,'0');
-      etaText.textContent = `${h}:${m}`;
-      document.getElementById('step2Time').textContent = `${h}:${m} (atual)`;
-    }
-
-    // Real update loop: in production replace simulatePosition with fetch of your API
-    function startSimulation(){
-      if (simInterval) return;
-      setRouteStatus(true);
-      simIndex = 0;
-      moveMarkerTo(simPath[0].lat, simPath[0].lng);
-      map.setView([simPath[0].lat, simPath[0].lng], 14);
-
-      simInterval = setInterval(()=> {
-        // In production: replace this block with a fetch() to your server returning {lat,lng,status}
-        // fetch('/api/vehicle').then(r=>r.json()).then(data => { /* update using data.lat,data.lng */ })
-
-        // simulate advancing
-        if (simIndex < simPath.length - 1) {
-          simIndex++;
-          const p = simPath[simIndex];
-          moveMarkerTo(p.lat, p.lng);
-          // keep map following only if last centered recently
-          // (we'll allow manual center button to recenter)
-          updateETA(simIndex);
-        } else {
-          // finished route -> stop
-          stopSimulation();
-          mapOverlayTitle.textContent = 'Rota finalizada';
-          mapOverlaySubtitle.textContent = 'Ônibus chegou ao destino';
-          etaText.textContent = 'Chegou';
-        }
-      }, 1000); // 1s tick for demo (increase for slower updates)
-    }
-
-    function stopSimulation(){
-      if (simInterval) {
-        clearInterval(simInterval);
-        simInterval = null;
-      }
-      setRouteStatus(false);
-    }
-
-    // center button
-    centerBtn.addEventListener('click', ()=>{
-      const pos = busMarker.getLatLng();
-      map.panTo(pos);
-    });
-
-    startBtn.addEventListener('click', ()=>{
-      startSimulation();
-    });
-    stopBtn.addEventListener('click', ()=>{
-      stopSimulation();
-    });
-
-    // Start paused by default
-    setRouteStatus(false);
-    // Put marker initially offscreen until start for realism:
-    moveMarkerTo(initialPosition.lat, initialPosition.lng);
-
-    // OPTIONAL: If you want the map to follow the bus automatically while moving:
-    let follow = true;
-    busMarker.on('move', function(){
-      if (follow) map.panTo(busMarker.getLatLng());
-    });
-
-    // If you prefer auto-follow, uncomment:
-    // map.setView([initialPosition.lat, initialPosition.lng], 13);
-
-    // ---- Example: replacing simulation with your API ----
-    /*
-      Replace startSimulation's simulation block by something like:
-
-      function pollRealAPI(){
-        simInterval = setInterval(async ()=>{
-          try{
-            const res = await fetch('/api/vehicle'); // your endpoint
-            const data = await res.json(); // expected { lat, lng, status, eta }
-            moveMarkerTo(data.lat, data.lng);
-            setRouteStatus(data.status === 'running');
-            if (data.eta) etaText.textContent = data.eta;
-          }catch(e){
-            console.error('erro fetch', e);
+          // Se não existe marcador, cria um
+          if (!marker) {
+            marker = L.marker([lat, lon], { icon: busIcon }).addTo(map)
+              .bindPopup("Ônibus Escolar (sua localização)");
+            map.setView([lat, lon], 15);
+          } else {
+            marker.setLatLng([lat, lon]);
+            map.setView([lat, lon], 15);
           }
-        }, 5000); // poll every 5 seconds
-      }
-
-      and call pollRealAPI() instead of startSimulation() when you want real updates.
-    */
-
-    // small enhancement: click on marker shows tooltip with time
-    busMarker.bindPopup('<b>Ônibus</b><br>Última posição').openPopup();
-
+        },
+        function(error) {
+          console.error("Erro ao obter localização: ", error);
+          alert("Não foi possível acessar sua localização.");
+        },
+        {
+          enableHighAccuracy: true,
+          maximumAge: 0
+        }
+      );
+    } else {
+      alert("Geolocalização não suportada pelo seu navegador.");
+    }
   </script>
 </body>
 </html>
