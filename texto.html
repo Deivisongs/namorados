@@ -1,0 +1,69 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Minha Localização em Tempo Real</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- CSS do Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <style>
+    #map {
+      height: 100vh;   /* ocupa a tela inteira */
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <!-- JS do Leaflet -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    // inicializa o mapa em uma posição genérica
+    const map = L.map('map').setView([0, 0], 13);
+
+    // camada base OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // ícone customizado
+    const myIcon = L.icon({
+      iconUrl: "https://cdn-icons-png.flaticon.com/512/64/64113.png",
+      iconSize: [32, 32],
+      iconAnchor: [16, 32]
+    });
+
+    // marcador que vai se mover com sua localização
+    const marker = L.marker([0, 0], { icon: myIcon }).addTo(map);
+    const circle = L.circle([0, 0], { radius: 0 }).addTo(map);
+
+    // Função chamada quando a posição é atualizada
+    function onLocationFound(e) {
+      const lat = e.coords.latitude;
+      const lng = e.coords.longitude;
+      const accuracy = e.coords.accuracy; // raio em metros
+
+      marker.setLatLng([lat, lng]);
+      circle.setLatLng([lat, lng]).setRadius(accuracy);
+
+      map.setView([lat, lng], 16); // centraliza no usuário
+    }
+
+    function onLocationError(e) {
+      alert("Erro ao obter localização: " + e.message);
+    }
+
+    // rastreamento em tempo real
+    if ("geolocation" in navigator) {
+      navigator.geolocation.watchPosition(onLocationFound, onLocationError, {
+        enableHighAccuracy: true,
+        maximumAge: 1000
+      });
+    } else {
+      alert("Geolocalização não suportada pelo seu navegador.");
+    }
+  </script>
+</body>
+</html>
