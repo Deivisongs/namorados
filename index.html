@@ -48,10 +48,11 @@
       border-radius: 16px;
       font-size: 12px;
     }
-    .map {
-      height: 200px;
+    /* 🔑 Garantir altura e largura do mapa */
+    #map {
+      height: 250px;
+      width: 100%;
       border-radius: 8px;
-      margin-top: 8px;
     }
     .progress {
       list-style: none;
@@ -90,7 +91,7 @@
 
     <div class="card">
       <h3>Localização do Ônibus</h3>
-      <div id="map" class="map"></div>
+      <div id="map"></div>
     </div>
 
     <div class="card">
@@ -121,7 +122,7 @@
     crossorigin="">
   </script>
   <script>
-    // Inicializa o mapa sem posição
+    // Inicializa o mapa
     var map = L.map('map').setView([0, 0], 13);
 
     // Adiciona camada de mapa
@@ -129,7 +130,7 @@
       attribution: '© OpenStreetMap'
     }).addTo(map);
 
-    // Ícone do ônibus
+    // Ícone personalizado (ônibus)
     var busIcon = L.icon({
       iconUrl: 'https://cdn-icons-png.flaticon.com/512/61/61205.png',
       iconSize: [32, 32],
@@ -139,21 +140,21 @@
 
     var marker;
 
-    // Função para atualizar localização em tempo real
+    // Geolocalização em tempo real
     if (navigator.geolocation) {
       navigator.geolocation.watchPosition(
         function(position) {
           var lat = position.coords.latitude;
           var lon = position.coords.longitude;
 
-          // Se não existe marcador, cria um
           if (!marker) {
-            marker = L.marker([lat, lon], { icon: busIcon }).addTo(map)
-              .bindPopup("Ônibus Escolar (sua localização)");
+            marker = L.marker([lat, lon], { icon: busIcon })
+              .addTo(map)
+              .bindPopup("Sua localização (ônibus)");
             map.setView([lat, lon], 15);
           } else {
             marker.setLatLng([lat, lon]);
-            map.setView([lat, lon], 15);
+            map.panTo([lat, lon]);
           }
         },
         function(error) {
@@ -168,6 +169,11 @@
     } else {
       alert("Geolocalização não suportada pelo seu navegador.");
     }
+
+    // Corrige bug de renderização do mapa
+    setTimeout(() => {
+      map.invalidateSize();
+    }, 500);
   </script>
 </body>
 </html>
