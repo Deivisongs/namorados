@@ -72,7 +72,7 @@ html,body{ height:100%; margin:0; background:var(--bg); color:#0f1724; }
     <div id="mapOverlay" class="map-overlay">
       <div class="icon">📍</div>
       <div>
-        <h4 id="mapOverlayTitle">Localização encontrada</h4>
+        <h4>Aguardando localização...</h4>
       </div>
     </div>
   </div>
@@ -156,12 +156,15 @@ html,body{ height:100%; margin:0; background:var(--bg); color:#0f1724; }
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 const routeStatusBadge = document.getElementById('routeStatusBadge');
-const overlayTitle = document.getElementById('mapOverlayTitle');
+const overlay = document.getElementById('mapOverlay');
 const etaText = document.getElementById('etaText');
 const centerBtn = document.getElementById('centerBtn');
 
 const map = L.map('map').setView([0,0],2);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{ maxZoom:19, attribution:'&copy; OpenStreetMap contributors' }).addTo(map);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+  maxZoom:19,
+  attribution:'&copy; OpenStreetMap contributors'
+}).addTo(map);
 
 const userMarker = L.marker([0,0]).addTo(map);
 const accuracyCircle = L.circle([0,0], {radius:0,color:'#cce5ff',fillColor:'#cce5ff',opacity:0.4}).addTo(map);
@@ -170,8 +173,7 @@ function updatePosition(lat,lng,accuracy){
   userMarker.setLatLng([lat,lng]);
   accuracyCircle.setLatLng([lat,lng]).setRadius(accuracy||20);
   map.setView([lat,lng],16);
-  overlayTitle.textContent="Localização encontrada";
-  // overlaySubtitle removido
+  overlay.style.display='none'; // overlay desaparece quando localização encontrada
   const now = new Date();
   etaText.textContent = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')} (agora)`;
   routeStatusBadge.textContent="Em andamento";
@@ -184,12 +186,14 @@ if("geolocation" in navigator){
       updatePosition(pos.coords.latitude,pos.coords.longitude,pos.coords.accuracy);
     }, err=>{
       console.error(err);
-      overlayTitle.textContent="Erro ao obter localização";
+      overlay.style.display='flex'; // mostra overlay em caso de erro
+      overlay.querySelector('h4').textContent="Erro ao obter localização";
       routeStatusBadge.textContent="Pausada";
     }, { enableHighAccuracy:true, maximumAge:1000 });
   }, err=>{
     console.error(err);
-    overlayTitle.textContent="Erro ao obter localização";
+    overlay.style.display='flex';
+    overlay.querySelector('h4').textContent="Erro ao obter localização";
     routeStatusBadge.textContent="Pausada";
   }, { enableHighAccuracy:true });
 }else{
