@@ -22,14 +22,6 @@ html,body{ height:100%; margin:0; background:var(--bg); color:#0f1724; }
 .card { background: var(--card); border-radius: var(--radius); box-shadow: 0 6px 18px rgba(15,23,36,0.06); padding:18px; margin-top:16px; }
 #mapCard { padding:0; overflow:hidden; position:relative; }
 #map { height:260px; width:100%; }
-.map-overlay {
-  position:absolute; left:50%; transform:translateX(-50%); top:20%; z-index:400;
-  background:rgba(255,255,255,0.98); padding:16px 20px; border-radius:12px;
-  box-shadow:0 8px 24px rgba(15,23,36,0.08); display:flex; align-items:center; gap:12px;
-  width:70%; max-width:420px; text-align:center;
-}
-.map-overlay .icon { width:42px;height:42px;border-radius:50%; background:linear-gradient(180deg,#ffcc33,#ffb020); display:flex;align-items:center;justify-content:center; font-size:20px; }
-.map-overlay h4 { margin:0; font-weight:700; font-size:16px; }
 
 .status-row { display:flex; align-items:flex-start; gap:12px; margin-top:8px; }
 .status-left { flex:1; }
@@ -44,7 +36,7 @@ html,body{ height:100%; margin:0; background:var(--bg); color:#0f1724; }
 .step .title { font-weight:700; margin:0; }
 .time { color:var(--muted); font-size:13px; margin-top:6px; }
 
-@media (max-width:520px){ .map-overlay { width:86%; top:18%; padding:12px; } .title { font-size:22px; } }
+@media (max-width:520px){ .title { font-size:22px; } }
 
 .controls { display:flex; gap:8px; margin-top:12px; }
 .btn { padding:10px 14px; border-radius:10px; border:0; font-weight:700; cursor:pointer; }
@@ -69,12 +61,6 @@ html,body{ height:100%; margin:0; background:var(--bg); color:#0f1724; }
   <!-- Map card -->
   <div class="card" id="mapCard">
     <div id="map"></div>
-    <div id="mapOverlay" class="map-overlay">
-      <div class="icon">📍</div>
-      <div>
-        <h4>Aguardando localização...</h4>
-      </div>
-    </div>
   </div>
 
   <!-- Status card -->
@@ -111,42 +97,6 @@ html,body{ height:100%; margin:0; background:var(--bg); color:#0f1724; }
         </div>
       </div>
     </div>
-  </div>
-
-  <!-- Progress card -->
-  <div class="card">
-    <div style="font-weight:800; font-size:18px;">Progresso da Rota</div>
-    <div class="progress-list">
-      <div class="step">
-        <div class="dot" style="background:var(--green);"></div>
-        <div class="content">
-          <div class="title">Rota iniciada</div>
-          <div class="time">07:30</div>
-        </div>
-      </div>
-      <div class="step">
-        <div class="dot" style="background:var(--yellow);"></div>
-        <div class="content">
-          <div class="title">Indo buscar seu filho</div>
-          <div class="time">--:-- (atual)</div>
-        </div>
-      </div>
-      <div class="step">
-        <div class="dot" style="background:#e6e9ec;"></div>
-        <div class="content">
-          <div class="title">Aluno embarcou</div>
-          <div class="time">Aguardando...</div>
-        </div>
-      </div>
-      <div class="step">
-        <div class="dot" style="background:#e6e9ec;"></div>
-        <div class="content">
-          <div class="title">A caminho da escola</div>
-          <div class="time">Aguardando...</div>
-        </div>
-      </div>
-    </div>
-
     <div class="controls" style="margin-top:14px;">
       <button class="btn btn-ghost" id="centerBtn">Centralizar usuário</button>
     </div>
@@ -156,7 +106,6 @@ html,body{ height:100%; margin:0; background:var(--bg); color:#0f1724; }
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 const routeStatusBadge = document.getElementById('routeStatusBadge');
-const overlay = document.getElementById('mapOverlay');
 const etaText = document.getElementById('etaText');
 const centerBtn = document.getElementById('centerBtn');
 
@@ -166,14 +115,20 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
   attribution:'&copy; OpenStreetMap contributors'
 }).addTo(map);
 
-const userMarker = L.marker([0,0]).addTo(map);
+// Ícone customizado com imagem
+const customIcon = L.icon({
+  iconUrl: 'IMG_3065.png', // substitua pelo seu arquivo PNG ou URL
+  iconSize: [40, 40],
+  iconAnchor: [20, 40]
+});
+
+const userMarker = L.marker([0,0], { icon: customIcon }).addTo(map);
 const accuracyCircle = L.circle([0,0], {radius:0,color:'#cce5ff',fillColor:'#cce5ff',opacity:0.4}).addTo(map);
 
 function updatePosition(lat,lng,accuracy){
   userMarker.setLatLng([lat,lng]);
   accuracyCircle.setLatLng([lat,lng]).setRadius(accuracy||20);
   map.setView([lat,lng],16);
-  overlay.style.display='none'; // overlay desaparece quando localização encontrada
   const now = new Date();
   etaText.textContent = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')} (agora)`;
   routeStatusBadge.textContent="Em andamento";
@@ -186,14 +141,10 @@ if("geolocation" in navigator){
       updatePosition(pos.coords.latitude,pos.coords.longitude,pos.coords.accuracy);
     }, err=>{
       console.error(err);
-      overlay.style.display='flex'; // mostra overlay em caso de erro
-      overlay.querySelector('h4').textContent="Erro ao obter localização";
       routeStatusBadge.textContent="Pausada";
     }, { enableHighAccuracy:true, maximumAge:1000 });
   }, err=>{
     console.error(err);
-    overlay.style.display='flex';
-    overlay.querySelector('h4').textContent="Erro ao obter localização";
     routeStatusBadge.textContent="Pausada";
   }, { enableHighAccuracy:true });
 }else{
