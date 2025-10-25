@@ -866,7 +866,7 @@
                 };
 
                 let message = "Olá, gostaria de fazer um novo pedido:\n\n";
-                message += "*====== ITENS DO PEDIDO ======*\n";
+                message += "*== ITENS DO PEDIDO ==*\n";
                 
                 cart.forEach(item => {
                     message += `*${item.quantity}x* - ${item.name}\n`;
@@ -874,12 +874,12 @@
                     if (item.obs) {
                         message += `  *Obs:* ${item.obs}\n`;
                     }
-                    message += "---------------------------------------\n";
+                    message += "-----------------\n";
                 });
 
                 message += `\n*TOTAL DO PEDIDO: ${cartTotalEl.textContent}*\n\n`;
 
-                message += "*====== DADOS DO CLIENTE ======*\n";
+                message += "*== DADOS DO CLIENTE ==*\n";
                 message += `*Nome:* ${customer.nome}\n`;
                 message += `*Telefone:* ${customer.telefone}\n`;
                 message += `*CPF:* ${customer.cpf}\n`;
