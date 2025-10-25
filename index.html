@@ -3,155 +3,442 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Acompanhamento de Rota - Demo</title>
-
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-
+<title>Cardápio Online — Pedido via WhatsApp</title>
 <style>
-:root{
-  --bg:#FCF7F0; --card:#ffffff; --muted:#7b8794; --accent:#0b5ed7;
-  --green:#16a34a; --yellow:#f59e0b; --blue:#0b5ed7; --radius:12px;
-  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-}
-html,body{ height:100%; margin:0; background:var(--bg); color:#0f1724; }
-.page { max-width: 760px; margin: 18px auto; padding: 18px; }
-.header { display:flex; align-items:center; justify-content:space-between; gap:12px; }
-.title { font-size:28px; font-weight:800; margin:0; }
-.subtitle { color:var(--muted); margin-top:6px; font-size:14px; }
-.card { background: var(--card); border-radius: var(--radius); box-shadow: 0 6px 18px rgba(15,23,36,0.06); padding:18px; margin-top:16px; }
-#mapCard { padding:0; overflow:hidden; position:relative; }
-#map { height:260px; width:100%; }
+  :root{
+    --bg:#f6f7fb;
+    --card:#ffffff;
+    --accent:#ff6b35;
+    --muted:#6b7280;
+    --success:#16a34a;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    background:linear-gradient(180deg,#f6f7fb 0%, #eef2ff 100%);
+    color:#111827;
+    -webkit-font-smoothing:antialiased;
+  }
 
-.status-row { display:flex; align-items:flex-start; gap:12px; margin-top:8px; }
-.status-left { flex:1; }
-.badge { background:var(--blue); color:#fff; padding:6px 12px; border-radius:999px; font-weight:700; font-size:13px; }
-.person { font-weight:700; font-size:16px; margin:0; }
-.muted { color:var(--muted); margin-top:6px; }
+  header{
+    background:var(--card);
+    padding:18px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    box-shadow:0 1px 6px rgba(16,24,40,0.06);
+    position:sticky;
+    top:0;
+    z-index:10;
+  }
+  header h1{margin:0;font-size:18px}
+  header p{margin:0;color:var(--muted);font-size:13px}
 
-.progress-list { display:flex; flex-direction:column; gap:12px; margin-top:10px; }
-.step { display:flex; gap:12px; align-items:flex-start; }
-.dot { flex-shrink:0; width:14px;height:14px;border-radius:50%; margin-top:4px; box-shadow:inset 0 -2px 0 rgba(0,0,0,0.06); }
-.step .content { flex:1; }
-.step .title { font-weight:700; margin:0; }
-.time { color:var(--muted); font-size:13px; margin-top:6px; }
+  .container{
+    max-width:1100px;
+    margin:22px auto;
+    padding:18px;
+    display:grid;
+    grid-template-columns: 1fr 360px;
+    gap:18px;
+  }
 
-@media (max-width:520px){ .title { font-size:22px; } }
+  /* Menu */
+  .menu{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+    gap:14px;
+  }
+  .item{
+    background:var(--card);
+    border-radius:10px;
+    padding:12px;
+    box-shadow:0 1px 6px rgba(16,24,40,0.04);
+    display:flex;
+    gap:10px;
+    align-items:flex-start;
+  }
+  .thumb{
+    width:84px;
+    height:64px;
+    background:#f3f4f6;
+    border-radius:8px;
+    flex-shrink:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:12px;
+    color:var(--muted);
+  }
+  .info{flex:1}
+  .info h3{margin:0;font-size:15px}
+  .info p{margin:6px 0 0 0;color:var(--muted);font-size:13px}
+  .item-footer{
+    margin-top:8px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:8px;
+  }
+  .price{font-weight:600}
+  button.add{
+    background:var(--accent);
+    color:white;
+    border:0;
+    padding:8px 10px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:600;
+  }
+  button.add:active{transform:scale(.99)}
 
-.controls { display:flex; gap:8px; margin-top:12px; }
-.btn { padding:10px 14px; border-radius:10px; border:0; font-weight:700; cursor:pointer; }
-.btn-primary { background:var(--blue); color:white; }
-.btn-ghost { background:transparent; border:1px solid rgba(15,23,36,0.06); color:var(--muted); }
-.link-plate { color:var(--blue); text-decoration:underline; font-weight:600; }
+  /* Cart */
+  .cart{
+    background:var(--card);
+    border-radius:12px;
+    padding:14px;
+    box-shadow:0 1px 8px rgba(16,24,40,0.06);
+    position:sticky;
+    top:86px;
+    height:fit-content;
+  }
+  .cart h2{margin:0 0 8px 0}
+  .cart-list{display:flex;flex-direction:column;gap:10px;max-height:360px;overflow:auto;padding-right:4px}
+  .cart-item{
+    display:flex;
+    justify-content:space-between;
+    gap:8px;
+    align-items:center;
+    border-radius:8px;
+    padding:8px;
+    background:linear-gradient(180deg,#fff,#fbfbfd);
+  }
+  .cart-item .meta{flex:1}
+  .qty-control{display:inline-flex;align-items:center;gap:6px;background:#f3f4f6;padding:4px;border-radius:8px}
+  .qty-control button{border:0;background:transparent;padding:6px;cursor:pointer}
+  .remove{border:0;background:transparent;color:#ef4444;cursor:pointer;font-size:13px}
+
+  .summary{border-top:1px dashed #e6e9ef;padding-top:12px;margin-top:12px}
+  .summary div{display:flex;justify-content:space-between;margin-bottom:6px}
+  .total{font-weight:700;font-size:18px}
+
+  label{display:block;font-size:13px;margin-top:10px;color:var(--muted)}
+  input[type="text"], textarea, select{
+    width:100%;
+    padding:10px;border-radius:8px;border:1px solid #e6e9ef;margin-top:6px;
+    font-size:14px;
+  }
+
+  .btn-full{
+    width:100%;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    margin-top:10px;
+    padding:12px;
+    border-radius:10px;
+    border:0;
+    cursor:pointer;
+    font-weight:700;
+  }
+  .btn-whatsapp{
+    background:#25D366;color:white;
+  }
+  .btn-clear{background:#ef4444;color:white}
+
+  footer{max-width:1100px;margin:20px auto;color:var(--muted);font-size:13px;padding:0 18px}
+
+  /* responsive */
+  @media(max-width:980px){
+    .container{grid-template-columns:1fr; padding-bottom:80px}
+    .cart{position:static;top:auto;}
+  }
 </style>
 </head>
 <body>
-<div class="page">
-  <div class="header">
-    <div>
-      <h1 class="title">Olá, Maria!</h1>
-      <div class="subtitle">Acompanhe o transporte do seu filho</div>
-    </div>
-    <div style="display:flex; gap:10px; align-items:center;">
-      <button class="btn btn-ghost" title="Notificações">🔔</button>
-      <button class="btn btn-ghost" title="Sair">⤴️</button>
-    </div>
+<header>
+  <div>
+    <h1>Cardápio Online</h1>
+    <p>Peça pelo WhatsApp — Rápido, sem cadastro</p>
   </div>
-
-  <!-- Map card -->
-  <div class="card" id="mapCard">
-    <div id="map"></div>
+  <div>
+    <strong>Entrega / Retirar</strong>
+    <p style="text-align:right;margin:0;color:var(--muted);font-size:13px">Aberto agora • Entrega rápida</p>
   </div>
+</header>
 
-  <!-- Status card -->
-  <div class="card">
-    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-      <div><div style="font-weight:800; font-size:18px;">Status da Rota</div></div>
-      <div class="badge" id="routeStatusBadge">Pausada</div>
+<main class="container" id="app">
+  <section>
+    <h2 style="margin-top:0">Cardápio</h2>
+    <div class="menu" id="menu">
+      <!-- itens serão inseridos via JS -->
+    </div>
+  </section>
+
+  <aside class="cart" aria-label="Carrinho">
+    <h2>Carrinho</h2>
+    <div class="cart-list" id="cartList">
+      <p style="color:var(--muted);font-size:14px" id="emptyMsg">Seu carrinho está vazio.</p>
     </div>
 
-    <div class="status-row">
-      <div class="status-left">
-        <div style="display:flex; gap:12px; align-items:center;">
-          <div style="width:36px;height:36px;border-radius:9px;background:linear-gradient(180deg,#ffedcc,#ffe6b0);display:flex;justify-content:center;align-items:center;">👤</div>
-          <div>
-            <div class="person">João Silva</div>
-            <div class="muted">Rota Manhã - Escola Municipal</div>
-          </div>
-        </div>
+    <div class="summary" id="summary">
+      <div><span>Subtotal</span><span id="subtotalText">R$ 0,00</span></div>
+      <div><span>Taxa entrega</span><span id="feeText">R$ 0,00</span></div>
+      <div class="total"><span>Total</span><span id="totalText">R$ 0,00</span></div>
 
-        <div style="display:flex; gap:12px; margin-top:12px; align-items:center;">
-          <div style="width:36px;height:36px;border-radius:9px;background:linear-gradient(180deg,#e6f7ee,#d9f1e6);display:flex;justify-content:center;align-items:center;">⏱️</div>
-          <div>
-            <div style="font-weight:700;">Chegada Prevista</div>
-            <div class="muted" id="etaText">--:--</div>
-          </div>
-        </div>
+      <label>Nome do cliente</label>
+      <input type="text" id="customerName" placeholder="Ex: João Silva">
 
-        <div style="display:flex; gap:12px; margin-top:12px; align-items:center;">
-          <div style="width:36px;height:36px;border-radius:9px;background:linear-gradient(180deg,#e6f0ff,#dbe8ff);display:flex;justify-content:center;align-items:center;">🚌</div>
-          <div>
-            <div style="font-weight:700;">Motorista: Sr. Carlos</div>
-            <div class="muted">Placa: <span class="link-plate">ABC-1234</span></div>
-          </div>
+      <label>Endereço (ou "Retirar")</label>
+      <input type="text" id="customerAddress" placeholder="Rua, número, complemento...">
+
+      <label>Observações</label>
+      <textarea id="customerNote" rows="2" placeholder="Sem cebola, mais molho, etc."></textarea>
+
+      <label>Forma de pagamento</label>
+      <select id="paymentMethod">
+        <option value="Dinheiro">Dinheiro</option>
+        <option value="Pix">Pix</option>
+        <option value="Cartão na entrega">Cartão na entrega</option>
+      </select>
+
+      <button class="btn-full btn-whatsapp" id="checkoutBtn">
+        Finalizar pedido pelo WhatsApp
+      </button>
+
+      <button class="btn-full btn-clear" id="clearBtn" style="background:#ef4444;margin-top:8px">
+        Limpar carrinho
+      </button>
+    </div>
+  </aside>
+</main>
+
+<footer>
+  <p>Exemplo funcional sem backend — o pedido será aberto no WhatsApp usando seu número.</p>
+</footer>
+
+<script>
+/* =========== CONFIGURAÇÃO ================
+   Altere estes dados conforme quiser:
+*/
+const WHATSAPP_NUMBER_INTERNATIONAL = '+5531991486490'; // seu número com DDI (+55) e DDD (31)
+const DELIVERY_FEE = 0.00; // taxa fixa de entrega, ajustar se quiser
+
+/* =========== MENU DE PRODUTOS ================
+   Cada item: { id, name, description, price (float), thumbnail (texto opcional) }
+   Adicione/remova itens conforme desejar.
+*/
+const PRODUCTS = [
+  {id:1, name:'Cachorro-quente clássico', description:'Salsicha, pão macio, ketchup e maionese', price:14.50},
+  {id:2, name:'Cachorro-quente especial', description:'Salsicha, bacon, cheddar e molho especial', price:19.90},
+  {id:3, name:'Hambúrguer simples', description:'Pão, burger 120g, alface e molho', price:18.00},
+  {id:4, name:'Hambúrguer duplo', description:'2x burger 120g, queijo e cebola caramelizada', price:28.00},
+  {id:5, name:'Batata frita (porção)', description:'Porção média crocante', price:12.00},
+  {id:6, name:'Refrigerante 350ml', description:'Lata', price:6.00},
+];
+
+/* =========== LÓGICA DO CARRINHO ============= */
+let cart = []; // {productId, qty}
+
+function moneyBR(value){
+  return value.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+function findProduct(id){ return PRODUCTS.find(p => p.id === id); }
+
+function renderMenu(){
+  const menu = document.getElementById('menu');
+  menu.innerHTML = '';
+  PRODUCTS.forEach(p => {
+    const item = document.createElement('div');
+    item.className = 'item';
+    item.innerHTML = `
+      <div class="thumb">${p.name.split(' ')[0]}</div>
+      <div class="info">
+        <h3>${p.name}</h3>
+        <p>${p.description}</p>
+        <div class="item-footer">
+          <div class="price">R$ ${moneyBR(p.price)}</div>
+          <button class="add" data-id="${p.id}">Adicionar</button>
         </div>
       </div>
-    </div>
-    <div class="controls" style="margin-top:14px;">
-      <button class="btn btn-ghost" id="centerBtn">Centralizar usuário</button>
-    </div>
-  </div>
-</div>
+    `;
+    menu.appendChild(item);
+  });
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script>
-const routeStatusBadge = document.getElementById('routeStatusBadge');
-const etaText = document.getElementById('etaText');
-const centerBtn = document.getElementById('centerBtn');
+  // listeners
+  document.querySelectorAll('.add').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const id = Number(e.currentTarget.getAttribute('data-id'));
+      addToCart(id, 1);
+    });
+  });
+}
 
-const map = L.map('map').setView([0,0],2);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-  maxZoom:19,
-  attribution:'&copy; OpenStreetMap contributors'
-}).addTo(map);
+function saveCartToStorage(){
+  try {
+    localStorage.setItem('cardapio_cart_v1', JSON.stringify(cart));
+  } catch(e){}
+}
+function loadCartFromStorage(){
+  try{
+    const raw = localStorage.getItem('cardapio_cart_v1');
+    if(raw) cart = JSON.parse(raw);
+  }catch(e){}
+}
 
-// Ícone customizado com imagem
-const customIcon = L.icon({
-  iconUrl: 'IMG_3065.png', // substitua pelo seu arquivo PNG ou URL
-  iconSize: [40, 40],
-  iconAnchor: [20, 40]
+function addToCart(productId, qty){
+  const existing = cart.find(c => c.productId === productId);
+  if(existing) existing.qty += qty;
+  else cart.push({productId, qty});
+  saveCartToStorage();
+  renderCart();
+}
+
+function updateQty(productId, qty){
+  const idx = cart.findIndex(c => c.productId === productId);
+  if(idx === -1) return;
+  cart[idx].qty = qty;
+  if(cart[idx].qty <= 0) cart.splice(idx,1);
+  saveCartToStorage();
+  renderCart();
+}
+
+function clearCart(){
+  cart = [];
+  saveCartToStorage();
+  renderCart();
+}
+
+function calculateTotals(){
+  let subtotal = 0;
+  cart.forEach(c => {
+    const p = findProduct(c.productId);
+    if(p) subtotal += p.price * c.qty;
+  });
+  const fee = DELIVERY_FEE;
+  const total = subtotal + fee;
+  return {subtotal, fee, total};
+}
+
+function renderCart(){
+  const list = document.getElementById('cartList');
+  const emptyMsg = document.getElementById('emptyMsg');
+  list.innerHTML = '';
+  if(cart.length === 0){
+    emptyMsg.style.display = 'block';
+  } else {
+    emptyMsg.style.display = 'none';
+    cart.forEach(ci => {
+      const p = findProduct(ci.productId);
+      const el = document.createElement('div');
+      el.className = 'cart-item';
+      el.innerHTML = `
+        <div class="meta">
+          <div style="font-weight:600">${p.name}</div>
+          <div style="color:var(--muted);font-size:13px">R$ ${moneyBR(p.price)} cada</div>
+        </div>
+        <div style="text-align:right">
+          <div class="qty-control" aria-label="Quantidade">
+            <button data-action="dec" data-id="${p.id}">−</button>
+            <span style="min-width:22px;display:inline-block;text-align:center">${ci.qty}</span>
+            <button data-action="inc" data-id="${p.id}">+</button>
+          </div>
+          <div style="margin-top:6px;font-weight:700">R$ ${moneyBR(p.price * ci.qty)}</div>
+          <div><button class="remove" data-id="${p.id}">Remover</button></div>
+        </div>
+      `;
+      list.appendChild(el);
+    });
+  }
+
+  // listeners dentro do carrinho
+  list.querySelectorAll('button[data-action]').forEach(b => {
+    b.addEventListener('click', (e) => {
+      const id = Number(e.currentTarget.getAttribute('data-id'));
+      const action = e.currentTarget.getAttribute('data-action');
+      const ci = cart.find(c => c.productId === id);
+      if(!ci) return;
+      if(action === 'inc') updateQty(id, ci.qty + 1);
+      else if(action === 'dec') updateQty(id, ci.qty - 1);
+    });
+  });
+  list.querySelectorAll('.remove').forEach(b => {
+    b.addEventListener('click', (e) => {
+      const id = Number(e.currentTarget.getAttribute('data-id'));
+      updateQty(id, 0);
+    });
+  });
+
+  // resumo de valores
+  const totals = calculateTotals();
+  document.getElementById('subtotalText').textContent = 'R$ ' + moneyBR(totals.subtotal);
+  document.getElementById('feeText').textContent = 'R$ ' + moneyBR(totals.fee);
+  document.getElementById('totalText').textContent = 'R$ ' + moneyBR(totals.total);
+}
+
+/* =========== FINALIZAR PEDIDO (WHATSAPP) ============= */
+function buildMessage(){
+  if(cart.length === 0) return '';
+  const name = document.getElementById('customerName').value.trim();
+  const address = document.getElementById('customerAddress').value.trim();
+  const note = document.getElementById('customerNote').value.trim();
+  const payment = document.getElementById('paymentMethod').value;
+
+  const lines = [];
+  lines.push('*Novo pedido pelo site*');
+  lines.push('');
+  lines.push('*Itens:*');
+
+  cart.forEach(ci => {
+    const p = findProduct(ci.productId);
+    lines.push(`${ci.qty} x ${p.name} — R$ ${moneyBR(p.price)} (subtotal: R$ ${moneyBR(p.price * ci.qty)})`);
+  });
+
+  const totals = calculateTotals();
+  lines.push('');
+  lines.push(`*Subtotal:* R$ ${moneyBR(totals.subtotal)}`);
+  lines.push(`*Entrega:* R$ ${moneyBR(totals.fee)}`);
+  lines.push(`*Total:* R$ ${moneyBR(totals.total)}`);
+  lines.push('');
+  lines.push('*Dados do cliente:*');
+  if(name) lines.push(`Nome: ${name}`);
+  if(address) lines.push(`Endereço: ${address}`);
+  lines.push(`Pagamento: ${payment}`);
+  if(note) lines.push(`Observações: ${note}`);
+  lines.push('');
+  lines.push('Por favor confirmar o pedido.Obrigado!');
+
+  return lines.join('\n');
+}
+
+function openWhatsAppWithMessage(){
+  if(cart.length === 0){
+    alert('Seu carrinho está vazio. Adicione pelo menos um item.');
+    return;
+  }
+  const msg = buildMessage();
+  const encoded = encodeURIComponent(msg);
+  // Remove caracteres + do telefone para o formato wa.me (números somente, sem +)
+  const phoneDigits = WHATSAPP_NUMBER_INTERNATIONAL.replace(/[^\d]/g,'');
+  const url = `https://wa.me/${phoneDigits}?text=${encoded}`;
+  // abrir em nova aba/janela (funciona tanto em mobile quanto desktop)
+  window.open(url, '_blank');
+}
+
+/* =========== Inicialização ============= */
+document.getElementById('checkoutBtn').addEventListener('click', openWhatsAppWithMessage);
+document.getElementById('clearBtn').addEventListener('click', () => {
+  if(confirm('Deseja limpar o carrinho?')) clearCart();
 });
 
-const userMarker = L.marker([0,0], { icon: customIcon }).addTo(map);
-const accuracyCircle = L.circle([0,0], {radius:0,color:'#cce5ff',fillColor:'#cce5ff',opacity:0.4}).addTo(map);
+loadCartFromStorage();
+renderMenu();
+renderCart();
 
-function updatePosition(lat,lng,accuracy){
-  userMarker.setLatLng([lat,lng]);
-  accuracyCircle.setLatLng([lat,lng]).setRadius(accuracy||20);
-  map.setView([lat,lng],16);
-  const now = new Date();
-  etaText.textContent = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')} (agora)`;
-  routeStatusBadge.textContent="Em andamento";
-}
-
-if("geolocation" in navigator){
-  navigator.geolocation.getCurrentPosition(pos=>{
-    updatePosition(pos.coords.latitude,pos.coords.longitude,pos.coords.accuracy);
-    navigator.geolocation.watchPosition(pos=>{
-      updatePosition(pos.coords.latitude,pos.coords.longitude,pos.coords.accuracy);
-    }, err=>{
-      console.error(err);
-      routeStatusBadge.textContent="Pausada";
-    }, { enableHighAccuracy:true, maximumAge:1000 });
-  }, err=>{
-    console.error(err);
-    routeStatusBadge.textContent="Pausada";
-  }, { enableHighAccuracy:true });
-}else{
-  alert("Seu navegador não suporta geolocalização");
-}
-
-centerBtn.addEventListener('click',()=>{ map.panTo(userMarker.getLatLng()); });
 </script>
 </body>
 </html>
