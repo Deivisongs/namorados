@@ -9,19 +9,20 @@ window.WHATSAPP_NUMBER = "5531991486490";
 window.BUSINESS_NAME = "Delivery Express"; 
 
 
-// --- 2. TABELA DE PRODUTOS ---
-// Estrutura: { "Categoria": [{ name, price, description, image }] }
+// --- 2. TABELA DE PRODUTOS (COM OLDPRICE PARA PROMOÇÃO) ---
+// Adicione 'oldPrice' se o produto estiver em promoção.
 window.PRODUCTS = {
     "Lanches": [
         {
             name: "Hambúrguer Artesanal",
             price: 28.90,
+            oldPrice: 35.00, // <--- PRODUTO EM PROMOÇÃO
             description: "Delicioso hambúrguer com queijo, alface, tomate e molho especial",
-            image: "https://i.imgur.com/qB0rS5s.png" // URL da imagem
+            image: "https://i.imgur.com/qB0rS5s.png"
         },
         {
             name: "X-Bacon Cheddar",
-            price: 32.50,
+            price: 32.50, // <--- PRODUTO COM PREÇO NORMAL
             description: "Pão, blend de 180g, bacon crocante, cheddar cremoso e cebola caramelizada",
             image: "https://i.imgur.com/gK9xO7J.png" 
         }
@@ -30,6 +31,7 @@ window.PRODUCTS = {
         {
             name: "Pizza Margherita",
             price: 45.00,
+            oldPrice: 59.90, // <--- PRODUTO EM PROMOÇÃO
             description: "Pizza tradicional com mussarela, tomate e manjericão fresco",
             image: "https://i.imgur.com/UAUeNXC.png"
         },
