@@ -439,10 +439,32 @@
                 
                 for (const categoryName in window.PRODUCTS) {
                     html += `<section class="category">`;
-                    // Alteração de design: h2 com estilo ajustado no CSS
                     html += `<h2 class="category-title">${categoryName}</h2>`;
                     
                     window.PRODUCTS[categoryName].forEach(product => {
+                        
+                        const isPromotion = product.oldPrice && product.oldPrice > product.price;
+                        let priceHtml = '';
+
+                        if (isPromotion) {
+                            // Calcula o percentual de desconto
+                            const discount = Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100);
+                            
+                            // HTML com preço de promoção, preço riscado e badge
+                            priceHtml = `
+                                <div class="price-promotion-wrapper">
+                                    <span class="product-price promotion-price">R$ ${product.price.toFixed(2).replace('.', ',')}</span>
+                                    <div class="old-price-line">
+                                        <span class="product-old-price">R$ ${product.oldPrice.toFixed(2).replace('.', ',')}</span>
+                                        <span class="discount-badge">-${discount}%</span>
+                                    </div>
+                                </div>
+                            `;
+                        } else {
+                            // Preço normal (mantém a classe .product-price para estilização de cor)
+                            priceHtml = `<span class="product-price">R$ ${product.price.toFixed(2).replace('.', ',')}</span>`;
+                        }
+                        
                         html += `
                             <article class="product-card" data-name="${product.name}" data-price="${product.price}">
                                 
@@ -455,7 +477,7 @@
                                     </div>
                                     
                                     <div class="product-footer">
-                                        <span class="product-price">R$ ${product.price.toFixed(2).replace('.', ',')}</span>
+                                        ${priceHtml} 
                                         <button class="add-to-cart-btn">
                                             <i data-feather="plus"></i> Adicionar
                                         </button>
