@@ -17,13 +17,13 @@ window.PRODUCTS = {
             name: "Hambúrguer Artesanal",
             price: 28.90,
             description: "Delicioso hambúrguer com queijo, alface, tomate e molho especial",
-            image: "https://png.pngtree.com/png-vector/20240402/ourlarge/pngtree-cheese-burger-png-image_12259411.png"
+            image: "https://i.imgur.com/qB0rS5s.png" // URL da imagem
         },
         {
             name: "X-Bacon Cheddar",
             price: 32.50,
             description: "Pão, blend de 180g, bacon crocante, cheddar cremoso e cebola caramelizada",
-            image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThRRWcrxrm1dKGMSluf_2Nnz9zglGuDJiNqA&s" 
+            image: "https://i.imgur.com/gK9xO7J.png" 
         }
     ],
     "Pizzas": [
@@ -31,13 +31,13 @@ window.PRODUCTS = {
             name: "Pizza Margherita",
             price: 45.00,
             description: "Pizza tradicional com mussarela, tomate e manjericão fresco",
-            image: "https://www.galbani.com.br/wp-content/uploads/2024/11/Pizza-marguerita.webp"
+            image: "https://i.imgur.com/UAUeNXC.png"
         },
         {
-            name: "Pizza Calabresa",
+        name: "Pizza Calabresa",
             price: 42.00,
             description: "Mussarela, calabresa fatiada, cebola e orégano",
-            image: "https://painacozinha.com/wp-content/uploads/85.Pizza-de-Calabresa-com-Catupiry.webp" 
+            image: "https://i.imgur.com/jGqT6mZ.png" 
         }
     ],
     "Bebidas": [
@@ -45,29 +45,22 @@ window.PRODUCTS = {
             name: "Suco de Laranja",
             price: 8.50,
             description: "Suco natural de laranja fresquinho, sem conservantes",
-            image: "https://www.citrosuco.com.br/wp-content/uploads/2022/02/THUMB-05.png"
-        },
-        {
-            name: "Suco de Uva",
-            price: 8.50,
-            description: "Suco natural de Uva fresquinho, sem conservantes",
-            image: "https://wx.mlcdn.com.br/ponzi/production/portaldalu/58836.jpg"
+            image: "https://i.imgur.com/MNDiWlY.png"
         }
     ]
 };
 
-// --- 3. TABELA DE FRETES POR BAIRRO ---
-// IMPORTANTE: Use APENAS letras minúsculas e sem acentos (o sistema ignora acentos e capitalização na busca).
+// --- 3. TABELA DE FRETES POR BAIRRO E CIDADE ---
+// ESTRUTURA: "cidade-bairro": valor_do_frete
+// IMPORTANTE: Use APENAS letras minúsculas e sem acentos e separe com HÍFEN
 window.FREIGHT_TABLE_BY_NEIGHBORHOOD = {
-    "jardim sao jose": 2.00,
-    "manacas": 2.00,
-    "gloria": 2.00,
-    "padre eustaquio": 4.00,
-    "castelo": 4.00,
-    "jardim alvorada": 5.00,
-    "dom bosco": 5.00,
-    "milanez": 6.00
-    // ADICIONE SEUS BAIRROS AQUI (minúsculas, sem acento)
+    "belo horizonte-centro": 5.00,
+    "belo horizonte-savassi": 6.50,
+    "belo horizonte-lourdes": 7.00,
+    "contagem-centro": 12.00,
+    "contagem-eldorado": 15.00,
+    "nova lima-vale do sol": 20.00,
+    // ADICIONE SEUS PARES CIDADE-BAIRRO AQUI
 };
 
 // --- 4. OPÇÕES DE PAGAMENTO ---
@@ -75,7 +68,8 @@ window.PAYMENT_OPTIONS = [
     "Dinheiro (Traga troco)",
     "Pix (CNPJ / Chave)",
     "Cartão de Crédito",
-    "Cartão de Débito"
+    "Cartão de Débito",
+    "Vale Refeição"
 ];
 
 // --- 5. OPÇÕES DE ENTREGA/SERVIÇO ---
