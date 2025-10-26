@@ -2,7 +2,6 @@
    🎨 CONFIGURAÇÕES GLOBAIS DE COR E TIPOGRAFIA (EDITAR AQUI)
    ================================================================= */
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
 :root {
     /* Cores Principais */
@@ -23,7 +22,7 @@
 }
 
 /* =================================================================
-   ⚙️ RESTANTE DO CSS (NÃO ALTERAR PARA PRESERVAR O LAYOUT)
+   ⚙️ REGRAS GERAIS E LAYOUT DE SMARTPHONE CENTRALIZADO
    ================================================================= */
 
 * {
@@ -38,12 +37,11 @@ body {
     color: var(--text-dark);
     padding-bottom: 100px;
     
-    /* --- MODIFICAÇÃO CHAVE AQUI --- */
-    /* Limita a largura do corpo do documento e centraliza */
-    max-width: 420px; /* Largura máxima, similar a um smartphone grande */
-    margin: 0 auto;   /* Centraliza o conteúdo horizontalmente */
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Opcional: Adiciona uma sombra para destacar a "tela do celular" */
-    min-height: 100vh; /* Garante que o fundo cinza preencha a altura da tela, se quiser. */
+    /* CENTRALIZAÇÃO NA LARGURA DE SMARTPHONE */
+    max-width: 420px; 
+    margin: 0 auto;   
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); 
+    min-height: 100vh; 
 }
 
 img {
@@ -120,7 +118,7 @@ button {
     margin-bottom: 24px;
 }
 
-/* CATEGORIAS E PRODUTOS */
+/* --- NOVO DESIGN DO CARDÁPIO --- */
 .category {
     margin-bottom: 24px;
 }
@@ -130,24 +128,40 @@ button {
     font-weight: 500;
     color: var(--primary-color);
     margin-bottom: 16px;
+    margin-left: 4px; /* Alinha com o card */
 }
 
 .product-card {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
+    align-items: flex-start; /* Alinhamento superior */
+    
     background-color: var(--white);
     border-radius: 12px;
     box-shadow: var(--shadow);
-    padding: 16px;
+    
+    padding: 12px;
     margin-bottom: 16px;
-    position: relative;
+}
+
+.product-image {
+    width: 100px; 
+    height: 100px; 
+    object-fit: cover;
+    border-radius: 8px;
+    margin-right: 12px; 
+    flex-shrink: 0; 
+}
+
+.product-details-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 100px; 
 }
 
 .product-info {
     flex: 1;
-    min-width: 180px; 
-    margin-right: 16px;
 }
 
 .product-title {
@@ -159,44 +173,41 @@ button {
 .product-description {
     font-size: 0.875rem; 
     color: var(--text-light);
-    margin-bottom: 12px;
+    margin-bottom: 8px;
+}
+
+.product-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px; 
 }
 
 .product-price {
-    font-size: 1.125rem; 
+    font-size: 1.25rem; 
     font-weight: 700;
-    color: var(--text-dark);
-}
-
-.product-image {
-    width: 100px;
-    height: 100px;
-    object-fit: cover;
-    border-radius: 8px;
+    color: var(--primary-color); 
 }
 
 .add-to-cart-btn {
+    /* Botão estilo pill */
     background-color: var(--primary-color);
     color: var(--white);
-    border-radius: 8px;
-    padding: 10px 16px;
+    border-radius: 50px; 
+    padding: 8px 16px;
     font-size: 0.875rem; 
     font-weight: 500;
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-top: 16px;
-    width: 100%; 
+    gap: 4px;
+    width: auto; 
     justify-content: center;
 }
 
 .add-to-cart-btn:hover {
     background-color: var(--primary-dark);
 }
-
-/* Remove a media query de 400px que altera o layout do card */
-/* para manter o layout de smartphone sempre */
-/* @media (min-width: 400px) { ... } */
+/* --- FIM NOVO DESIGN --- */
 
 
 /* CARRINHO LATERAL */
@@ -205,7 +216,7 @@ button {
     top: 0;
     right: -100%; 
     width: 100%;
-    max-width: 420px; /* Mantém a largura máxima do smartphone */
+    max-width: 420px;
     height: 100vh;
     background-color: var(--white);
     box-shadow: -4px 0 16px rgba(0, 0, 0, 0.1);
@@ -543,5 +554,4 @@ button {
     background-color: var(--primary-dark);
 }
 
-/* --- Removemos todas as Media Queries anteriores para telas grandes --- */
-/* A largura fixa no 'body' é suficiente para manter o estilo de smartphone. */
+/* REGRAS DE MEDIA QUERY NÃO SÃO NECESSÁRIAS JÁ QUE O LAYOUT É FIXO EM 420PX */
