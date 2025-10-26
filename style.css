@@ -128,17 +128,15 @@ button {
     font-weight: 500;
     color: var(--primary-color);
     margin-bottom: 16px;
-    margin-left: 4px; /* Alinha com o card */
+    margin-left: 4px; 
 }
 
 .product-card {
     display: flex;
-    align-items: flex-start; /* Alinhamento superior */
-    
+    align-items: flex-start; 
     background-color: var(--white);
     border-radius: 12px;
     box-shadow: var(--shadow);
-    
     padding: 12px;
     margin-bottom: 16px;
 }
@@ -184,7 +182,7 @@ button {
 }
 
 .product-price {
-    /* AJUSTADO: Preço menor */
+    /* AJUSTADO: Preço normal ou de promoção */
     font-size: 1.1rem; 
     font-weight: 700;
     color: var(--primary-color); 
@@ -195,8 +193,8 @@ button {
     background-color: var(--primary-color);
     color: var(--white);
     border-radius: 50px; 
-    padding: 6px 14px; /* Padding reduzido */
-    font-size: 0.85rem; /* Fonte reduzida */
+    padding: 6px 14px; 
+    font-size: 0.85rem; 
     font-weight: 500;
     display: flex;
     align-items: center;
@@ -208,6 +206,49 @@ button {
 .add-to-cart-btn:hover {
     background-color: var(--primary-dark);
 }
+
+/* =================================================================
+   💰 ESTILOS PARA PROMOÇÕES (PREÇO RISCADO E BADGE)
+   ================================================================= */
+
+.price-promotion-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; 
+}
+
+/* .product-price é o preço promocional em destaque (já está verde) */
+.promotion-price {
+    line-height: 1; 
+    margin-bottom: 2px;
+}
+
+.old-price-line {
+    display: flex;
+    align-items: center;
+    gap: 8px; 
+}
+
+.product-old-price {
+    /* Estilo do preço riscado */
+    font-size: 0.8rem; 
+    color: var(--text-light); 
+    text-decoration: line-through; 
+    font-weight: 500;
+    line-height: 1;
+}
+
+.discount-badge {
+    /* Estilo do badge de desconto (Pill) */
+    background-color: var(--primary-color); 
+    color: var(--white);
+    font-size: 0.75rem; 
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 50px;
+    line-height: 1; 
+}
+
 /* --- FIM NOVO DESIGN --- */
 
 
