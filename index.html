@@ -189,7 +189,7 @@
             const ruaModal = document.getElementById('ruaModal');
             const numeroModal = document.getElementById('numeroModal');
             const bairroModal = document.getElementById('bairroModal');
-            const cidadeModal = document.getElementById('cidadeModal');
+            const cidadeModal = document.getElementById('cidadeModal'); 
             const complementoModal = document.getElementById('complementoModal');
             const freteDisplay = document.getElementById('freteDisplay');
             const finalTotalDisplay = document.getElementById('finalTotalDisplay');
@@ -224,20 +224,28 @@
                 input.value = value;
             }
 
-            // --- FUNÇÃO PARA CALCULAR O FRETE POR BAIRRO ---
-            function calculateFreightByNeighborhood(neighborhood) {
-                if (!neighborhood || !window.FREIGHT_TABLE_BY_NEIGHBORHOOD) return 0;
+            // --- FUNÇÃO PARA CALCULAR O FRETE POR BAIRRO E CIDADE ---
+            function calculateFreightByNeighborhood(neighborhood, city) {
+                if (!neighborhood || !city || !window.FREIGHT_TABLE_BY_NEIGHBORHOOD) return 0;
                 
+                // Normaliza Bairro e Cidade (minúsculas, sem acentos, sem espaços extras)
                 let cleanNeighborhood = neighborhood
                     .toLowerCase()
                     .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
                     .trim();
+                    
+                let cleanCity = city
+                    .toLowerCase()
+                    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                    .trim();
+                    
+                const key = `${cleanCity}-${cleanNeighborhood}`; // CHAVE: CIDADE-BAIRRO
                 
-                if (window.FREIGHT_TABLE_BY_NEIGHBORHOOD[cleanNeighborhood] !== undefined) {
-                    return window.FREIGHT_TABLE_BY_NEIGHBORHOOD[cleanNeighborhood];
+                if (window.FREIGHT_TABLE_BY_NEIGHBORHOOD[key] !== undefined) {
+                    return window.FREIGHT_TABLE_BY_NEIGHBORHOOD[key];
                 }
                 
-                return 0; 
+                return 0; // Frete 0 se não encontrar
             }
             
             // --- FUNÇÃO DE BUSCA DE ENDEREÇO (VIACEP) ---
@@ -273,7 +281,9 @@
                 
                 if (customerData.deliveryOption === 'Entrega') {
                     const currentNeighborhood = bairroModal.value;
-                    customerData.freightCost = calculateFreightByNeighborhood(currentNeighborhood);
+                    const currentCity = cidadeModal.value;
+                    
+                    customerData.freightCost = calculateFreightByNeighborhood(currentNeighborhood, currentCity);
                 }
                 
                 customerData.finalTotal = cartTotal + customerData.freightCost;
@@ -284,17 +294,20 @@
 
                 // --- Lógica de Validação da Área de Entrega ---
                 const bairroValue = bairroModal.value.trim();
+                const cidadeValue = cidadeModal.value.trim();
 
                 if (customerData.deliveryOption === 'Entrega' && cartTotal > 0) {
-                    if (bairroValue.length > 0 && customerData.freightCost === 0) {
+                    if (bairroValue.length === 0 || cidadeValue.length === 0) {
                         addressDataConfirmBtn.disabled = true;
                         finalTotalDisplay.style.color = 'red';
-                        finalTotalDisplay.value = 'BAIRRO FORA DA ÁREA DE ENTREGA';
-                    } else if (bairroValue.length === 0) {
+                        finalTotalDisplay.value = 'PREENCHA O ENDEREÇO';
+                    } 
+                    else if (customerData.freightCost === 0) {
                         addressDataConfirmBtn.disabled = true;
                         finalTotalDisplay.style.color = 'red';
-                        finalTotalDisplay.value = 'PREENCHA O BAIRRO';
-                    } else {
+                        finalTotalDisplay.value = 'BAIRRO/CIDADE FORA DA ÁREA DE ENTREGA';
+                    } 
+                    else {
                         addressDataConfirmBtn.disabled = false;
                         finalTotalDisplay.style.color = '#E53935'; 
                     }
@@ -426,20 +439,28 @@
                 
                 for (const categoryName in window.PRODUCTS) {
                     html += `<section class="category">`;
+                    // Alteração de design: h2 com estilo ajustado no CSS
                     html += `<h2 class="category-title">${categoryName}</h2>`;
                     
                     window.PRODUCTS[categoryName].forEach(product => {
                         html += `
-                            <article class="product-card" data-name="${product.name}" data-price="${product.price}" data-image="${product.image}">
-                                <div class="product-info">
-                                    <h3 class="product-title">${product.name}</h3>
-                                    <p class="product-description">${product.description}</p>
-                                    <span class="product-price">R$ ${product.price.toFixed(2).replace('.', ',')}</span>
-                                </div>
+                            <article class="product-card" data-name="${product.name}" data-price="${product.price}">
+                                
                                 <img src="${product.image}" alt="${product.name}" class="product-image">
-                                <button class="add-to-cart-btn">
-                                    <i data-feather="plus"></i> Adicionar
-                                </button>
+                                
+                                <div class="product-details-wrapper">
+                                    <div class="product-info">
+                                        <h3 class="product-title">${product.name}</h3>
+                                        <p class="product-description">${product.description}</p>
+                                    </div>
+                                    
+                                    <div class="product-footer">
+                                        <span class="product-price">R$ ${product.price.toFixed(2).replace('.', ',')}</span>
+                                        <button class="add-to-cart-btn">
+                                            <i data-feather="plus"></i> Adicionar
+                                        </button>
+                                    </div>
+                                </div>
                             </article>
                         `;
                     });
@@ -591,7 +612,8 @@
                     const productCard = e.target.closest('.product-card');
                     const name = productCard.dataset.name;
                     const price = parseFloat(productCard.dataset.price);
-                    const image = productCard.dataset.image || productCard.querySelector('.product-image').src;
+                    // Pega a imagem diretamente da tag <img> no novo layout
+                    const image = productCard.querySelector('.product-image').src; 
                     
                     currentProductToAdd = { name, price, image };
                     
@@ -629,8 +651,11 @@
                 });
             });
             
+            // Adicionando listeners para Bairro E Cidade para atualizar o frete
             bairroModal.addEventListener('keyup', updateFinalTotalDisplay);
             bairroModal.addEventListener('blur', updateFinalTotalDisplay);
+            cidadeModal.addEventListener('keyup', updateFinalTotalDisplay);
+            cidadeModal.addEventListener('blur', updateFinalTotalDisplay);
             
             function handlePersonalDataSubmit() {
                 if (!document.getElementById('personalFormModal').checkValidity()) {
