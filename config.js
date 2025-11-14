@@ -5,8 +5,25 @@
 // --- 1. DADOS DE CONTATO ---
 // Número de WhatsApp para onde os pedidos serão enviados
 window.WHATSAPP_NUMBER = "5531991486490"; 
-// Nome do seu estabelecimento (Aparece no topo)
-window.BUSINESS_NAME = "Delivery Express"; 
+
+// NOVO: DADOS DO ESTABELECIMENTO
+window.BUSINESS_NAME = "Coreu Burger"; // Nome no header e título
+window.BUSINESS_LOGO_URL = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThRRWcrxrm1dKGMSluf_2Nnz9zglGuDJiNqA&s" 
+; // **ATUALIZE COM A SUA LOGO REAL**
+window.DELIVERY_TIME = "20–55min"; // Tempo médio de entrega (string)
+
+// NOVO: HORÁRIOS DE FUNCIONAMENTO (Formato HH:MM)
+// Dias da semana (0=Domingo, 1=Segunda, ..., 6=Sábado)
+window.OPERATING_HOURS = {
+    1: { open: "18:00", close: "23:00" }, // Segunda
+    2: { open: "18:00", close: "23:00" }, // Terça
+    3: { open: "18:00", close: "23:00" }, // Quarta
+    4: { open: "18:00", close: "23:00" }, // Quinta
+    5: { open: "18:00", close: "23:59" }, // Sexta
+    6: { open: "18:00", close: "23:59" }, // Sábado
+    0: { open: "18:00", close: "23:00" }, // Domingo
+    // Se quiser fechar em um dia, use: 1: { open: null, close: null }, 
+}; 
 
 
 // --- 2. TABELA DE PRODUTOS (COM OLDPRICE PARA PROMOÇÃO) ---
@@ -60,7 +77,6 @@ window.PRODUCTS = {
 
 // --- 3. TABELA DE FRETES POR BAIRRO E CIDADE ---
 // ESTRUTURA: "cidade-bairro": valor_do_frete
-// IMPORTANTE: Use APENAS letras minúsculas e sem acentos e separe com HÍFEN
 window.FREIGHT_TABLE_BY_NEIGHBORHOOD = {
     "belo horizonte-centro": 5.00,
     "belo horizonte-savassi": 6.50,
