@@ -19,7 +19,7 @@ window.OPERATING_HOURS = {
     2: { open: "18:00", close: "23:00" }, // Terça
     3: { open: "18:00", close: "23:00" }, // Quarta
     4: { open: "18:00", close: "23:00" }, // Quinta
-    5: { open: "18:00", close: "23:59" }, // Sexta
+    5: { open: "09:00", close: "23:59" }, // Sexta
     6: { open: "18:00", close: "23:59" }, // Sábado
     0: { open: "18:00", close: "23:00" }, // Domingo
     // Se quiser fechar em um dia, use: 1: { open: null, close: null }, 
@@ -101,3 +101,4 @@ window.DELIVERY_OPTIONS = [
     "Entrega",
     "Retirada"
 ];
+
