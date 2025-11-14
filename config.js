@@ -8,8 +8,7 @@ window.WHATSAPP_NUMBER = "5531991486490";
 
 // NOVO: DADOS DO ESTABELECIMENTO
 window.BUSINESS_NAME = "Coreu Burger"; // Nome no header e título
-window.BUSINESS_LOGO_URL = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThRRWcrxrm1dKGMSluf_2Nnz9zglGuDJiNqA&s" 
-; // **ATUALIZE COM A SUA LOGO REAL**
+window.BUSINESS_LOGO_URL = "https://s3-sa-east-1.amazonaws.com/projetos-artes/fullsize%2F2020%2F04%2F17%2F18%2FLogo-267146_779111_185157912_1510408880.jpg"; // **ATUALIZE COM A SUA LOGO REAL**
 window.DELIVERY_TIME = "20–55min"; // Tempo médio de entrega (string)
 
 // NOVO: HORÁRIOS DE FUNCIONAMENTO (Formato HH:MM)
@@ -102,6 +101,7 @@ window.DELIVERY_OPTIONS = [
     "Entrega",
     "Retirada"
 ];
+
 
 
 
