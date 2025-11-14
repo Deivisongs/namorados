@@ -12,7 +12,14 @@
 <body>
 
     <header class="header">
-        <span class="logo-text" id="logoText">Delivery Express</span>
+        
+        <div class="header-sticky-logo-container" id="stickyLogoContainer" style="display: none;">
+            <img id="stickyLogo" class="sticky-logo" alt="Logo">
+        </div>
+
+        <div class="logo-group">
+            <span class="logo-text" id="logoText">Delivery Express</span>
+        </div>
         <div class="cart-icon-container" id="cartButton">
             <i data-feather="shopping-cart"></i>
             <span class="cart-count" id="cartCount">0</span>
@@ -20,11 +27,14 @@
     </header>
 
     <main class="container">
+        <div class="info-header" id="info-header-container">
+            </div>
+        
         <h1 class="main-title">Cardápio</h1>
         <p class="main-subtitle">Escolha seus produtos favoritos e faça seu pedido</p>
 
         <div id="product-list-container">
-            </div>
+        </div>
 
     </main>
 
@@ -84,7 +94,7 @@
             </div>
             <div class="form-group">
                 <label for="cpfModal">CPF (Opcional)</label>
-                <input type="text" id="cpfModal" name="cpf" placeholder="000.000.000-00">
+                <input type="text" id="cpfModal" name="cpf" placeholder="000.000.000-00" maxlength="14" onkeyup="cpfMask(this)">
             </div>
             <div class="form-group">
                 <label for="pagamentoModal">Forma de Pagamento</label>
@@ -179,12 +189,24 @@
             // As variáveis de configuração são acessadas globalmente (window.)
 
             // --- SELETORES GLOBAIS ---
+            const header = document.querySelector('.header'); 
             const cartButton = document.getElementById('cartButton');
             const cartSidebar = document.getElementById('cartSidebar');
             const overlay = document.getElementById('overlay');
             const productListContainer = document.getElementById('product-list-container');
+            const infoHeaderContainer = document.getElementById('info-header-container');
+            // NOVO: Seletores para o container da logo e a logo em si no header
+            const stickyLogoContainer = document.getElementById('stickyLogoContainer'); 
+            const stickyLogo = document.getElementById('stickyLogo'); 
+            
+            // SELETORES DE DADOS PESSOAIS
+            const nomeModal = document.getElementById('nomeModal');
+            const telefoneModal = document.getElementById('telefoneModal');
+            const cpfModal = document.getElementById('cpfModal'); 
+            const pagamentoModal = document.getElementById('pagamentoModal');
             
             // SELETORES DE DADOS DE ENTREGA
+            const deliveryOptionSelect = document.getElementById('deliveryOptionSelect');
             const cepModal = document.getElementById('cepModal');
             const ruaModal = document.getElementById('ruaModal');
             const numeroModal = document.getElementById('numeroModal');
@@ -193,8 +215,6 @@
             const complementoModal = document.getElementById('complementoModal');
             const freteDisplay = document.getElementById('freteDisplay');
             const finalTotalDisplay = document.getElementById('finalTotalDisplay');
-            const pagamentoModal = document.getElementById('pagamentoModal');
-            const deliveryOptionSelect = document.getElementById('deliveryOptionSelect');
 
             // SELETORES DE BOTÕES E ESTADO
             const cartCountEl = document.getElementById('cartCount');
@@ -222,6 +242,94 @@
                 value = value.replace(/^(\d{2})(\d)/g, "($1) $2"); 
                 value = value.replace(/(\d)(\d{4})$/, "$1-$2"); 
                 input.value = value;
+            }
+            
+            window.cpfMask = function(input) {
+                let value = input.value.replace(/\D/g, ""); 
+                value = value.replace(/(\d{3})(\d)/, "$1.$2");
+                value = value.replace(/(\d{3})(\d)/, "$1.$2");
+                value = value.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+                input.value = value.substring(0, 14); 
+            }
+
+            // --- FUNÇÃO DE VERIFICAÇÃO DE HORÁRIO ---
+            function isRestaurantOpen() {
+                if (!window.OPERATING_HOURS) return { isOpen: false, hours: "Horário não definido" };
+
+                const now = new Date();
+                const dayOfWeek = now.getDay(); // 0 (Domingo) a 6 (Sábado)
+                const currentHour = now.getHours();
+                const currentMinute = now.getMinutes();
+                const currentTimeInMinutes = (currentHour * 60) + currentMinute;
+
+                const todayHours = window.OPERATING_HOURS[dayOfWeek];
+
+                // Verifica se está fechado neste dia
+                if (!todayHours || !todayHours.open || !todayHours.close) {
+                     return { isOpen: false, hours: "Fechado neste dia" };
+                }
+                
+                // Converte horários de abertura e fechamento para minutos
+                const [openH, openM] = todayHours.open.split(':').map(Number);
+                const [closeH, closeM] = todayHours.close.split(':').map(Number);
+
+                const openTimeInMinutes = (openH * 60) + openM;
+                const closeTimeInMinutes = (closeH * 60) + closeM;
+                
+                // Formato de exibição
+                const displayHours = `${todayHours.open} às ${todayHours.close}`;
+
+                // Lógica de verificação
+                const isOpen = currentTimeInMinutes >= openTimeInMinutes && currentTimeInMinutes <= closeTimeInMinutes;
+
+                return { isOpen, hours: displayHours };
+            }
+            
+            // --- FUNÇÃO DE INJEÇÃO DO NOVO HEADER INFORMATIVO ---
+            function injectInfoHeader() {
+                const { isOpen, hours } = isRestaurantOpen();
+                
+                const statusText = isOpen ? "Aberto" : "Fechado";
+                const statusClass = isOpen ? "open" : "";
+                
+                // NOVO: Carrega a URL da logo no elemento sticky assim que as configs carregarem
+                stickyLogo.src = window.BUSINESS_LOGO_URL || ''; 
+                
+                const html = `
+                    <img src="${window.BUSINESS_LOGO_URL}" alt="${window.BUSINESS_NAME} Logo" class="business-logo">
+                    <div class="info-text-wrapper">
+                        <h2 class="business-name-display">${window.BUSINESS_NAME}</h2>
+                        <div class="status-line">
+                            <span class="business-status ${statusClass}">${statusText}</span>
+                            <span class="delivery-time-display">
+                                <i data-feather="clock"></i> 
+                                ${window.DELIVERY_TIME}
+                            </span>
+                        </div>
+                        <p class="operating-hours-display">${hours}</p>
+                    </div>
+                `;
+                
+                infoHeaderContainer.innerHTML = html;
+                feather.replace(); // Recarrega os ícones Feather
+                
+                // Desabilita o botão de finalizar pedido se estiver fechado
+                finishOrderBtn.disabled = !isOpen || cart.length === 0; 
+            }
+            
+            // --- NOVA FUNÇÃO: LÓGICA DE ROLAGEM E VISIBILIDADE DA LOGO ---
+            function handleScrollVisibility() {
+                if (!infoHeaderContainer || !stickyLogoContainer) return;
+
+                const infoHeaderBottom = infoHeaderContainer.getBoundingClientRect().bottom;
+
+                if (infoHeaderBottom < 0) {
+                    // Quando o info-header saiu da tela
+                    stickyLogoContainer.style.display = 'flex'; // Mostra a logo
+                } else {
+                    // Quando o info-header está visível
+                    stickyLogoContainer.style.display = 'none'; // Esconde a logo
+                }
             }
 
             // --- FUNÇÃO PARA CALCULAR O FRETE POR BAIRRO E CIDADE ---
@@ -332,6 +440,24 @@
                 updateFinalTotalDisplay();
             }
 
+            function handlePersonalDataSubmit() {
+                if (!document.getElementById('personalFormModal').checkValidity()) {
+                    document.getElementById('personalFormModal').reportValidity();
+                    return;
+                }
+
+                const formData = new FormData(document.getElementById('personalFormModal'));
+                customerData.nome = formData.get('nome');
+                customerData.telefone = formData.get('telefone');
+                customerData.cpf = formData.get('cpf');
+                customerData.pagamento = formData.get('pagamento');
+                
+                document.getElementById('personalDataModal').style.display = 'none';
+                document.getElementById('personalDataModalOverlay').style.display = 'none';
+                document.getElementById('deliveryOptionModal').style.display = 'flex';
+                document.getElementById('deliveryOptionModalOverlay').style.display = 'block';
+            }
+
             function handleDeliveryOptionSubmit() {
                  if (!document.getElementById('deliveryOptionFormModal').checkValidity()) {
                     document.getElementById('deliveryOptionFormModal').reportValidity();
@@ -347,9 +473,10 @@
                 } else if (option === 'Retirada') {
                     customerData.freightCost = 0;
                     customerData.finalTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-                    sendOrderToWhatsapp();
+                    
                     document.getElementById('deliveryOptionModal').style.display = 'none';
                     document.getElementById('deliveryOptionModalOverlay').style.display = 'none';
+                    sendOrderToWhatsapp();
                 }
             }
 
@@ -425,6 +552,8 @@
                 
                 window.open(whatsappURL, '_blank');
                 
+                document.getElementById('personalDataModal').style.display = 'none';
+                document.getElementById('personalDataModalOverlay').style.display = 'none';
                 document.getElementById('addressDataModal').style.display = 'none';
                 document.getElementById('addressDataModalOverlay').style.display = 'none';
                 document.getElementById('deliveryOptionModal').style.display = 'none';
@@ -492,7 +621,7 @@
             }
 
             function injectOptions() {
-                // Injeta Nome do Negócio
+                // Injeta Nome do Negócio no Header fixo
                 document.getElementById('logoText').textContent = window.BUSINESS_NAME || "Delivery Express";
 
                 // Injeta Formas de Pagamento
@@ -519,6 +648,7 @@
             function updateCart() {
                 renderCartItems();
                 updateCartSummary();
+                injectInfoHeader(); // ATUALIZA O STATUS DE HABILITAÇÃO DO BOTÃO
             }
             
             function updateCartSummary() {
@@ -527,7 +657,9 @@
 
                 cartCountEl.textContent = totalItems;
                 cartTotalEl.textContent = `R$ ${totalPrice.toFixed(2).replace('.', ',')}`;
-                finishOrderBtn.disabled = cart.length === 0;
+                
+                const { isOpen } = isRestaurantOpen();
+                finishOrderBtn.disabled = cart.length === 0 || !isOpen; // ATUALIZA AQUI TBM
             }
 
             function renderCartItems() {
@@ -634,7 +766,6 @@
                     const productCard = e.target.closest('.product-card');
                     const name = productCard.dataset.name;
                     const price = parseFloat(productCard.dataset.price);
-                    // Pega a imagem diretamente da tag <img> no novo layout
                     const image = productCard.querySelector('.product-image').src; 
                     
                     currentProductToAdd = { name, price, image };
@@ -647,6 +778,8 @@
             });
 
             document.getElementById('finishOrderBtn').addEventListener('click', () => {
+                if (finishOrderBtn.disabled) return; 
+
                 if (cart.length === 0) { alert("Seu carrinho está vazio."); return; }
                 document.getElementById('cartSidebar').classList.remove('open');
                 document.getElementById('overlay').classList.remove('open');
@@ -658,6 +791,9 @@
             document.getElementById('modalCancelBtn').addEventListener('click', () => { document.getElementById('productModal').style.display = 'none'; document.getElementById('modalObsOverlay').style.display = 'none'; currentProductToAdd = null; }); 
             document.getElementById('modalObsOverlay').addEventListener('click', () => { document.getElementById('productModal').style.display = 'none'; document.getElementById('modalObsOverlay').style.display = 'none'; currentProductToAdd = null; });
             
+            if (cpfModal) {
+                cpfModal.addEventListener('keyup', (e) => window.cpfMask(e.target));
+            }
             document.getElementById('personalDataConfirmBtn').addEventListener('click', handlePersonalDataSubmit); 
             document.getElementById('personalDataCancelBtn').addEventListener('click', () => { document.getElementById('personalDataModal').style.display = 'none'; document.getElementById('personalDataModalOverlay').style.display = 'none'; document.getElementById('cartSidebar').classList.add('open'); document.getElementById('overlay').classList.add('open'); }); 
             
@@ -673,36 +809,21 @@
                 });
             });
             
-            // Adicionando listeners para Bairro E Cidade para atualizar o frete
             bairroModal.addEventListener('keyup', updateFinalTotalDisplay);
             bairroModal.addEventListener('blur', updateFinalTotalDisplay);
             cidadeModal.addEventListener('keyup', updateFinalTotalDisplay);
             cidadeModal.addEventListener('blur', updateFinalTotalDisplay);
             
-            function handlePersonalDataSubmit() {
-                if (!document.getElementById('personalFormModal').checkValidity()) {
-                    document.getElementById('personalFormModal').reportValidity();
-                    return;
-                }
-
-                const formData = new FormData(document.getElementById('personalFormModal'));
-                customerData.nome = formData.get('nome');
-                customerData.telefone = formData.get('telefone');
-                customerData.cpf = formData.get('cpf');
-                customerData.pagamento = formData.get('pagamento');
-                
-                document.getElementById('personalDataModal').style.display = 'none';
-                document.getElementById('personalDataModalOverlay').style.display = 'none';
-                document.getElementById('deliveryOptionModal').style.display = 'flex';
-                document.getElementById('deliveryOptionModalOverlay').style.display = 'block';
-            }
-
-
             // INICIALIZAÇÃO FINAL
             injectOptions();
             injectProductList();
+            injectInfoHeader(); 
             updateCart();
             feather.replace();
+            
+            // NOVO: ADICIONA EVENTO DE SCROLL
+            window.addEventListener('scroll', handleScrollVisibility);
+            handleScrollVisibility(); // Chama uma vez para inicializar o estado correto
         });
     </script>
 </body>
