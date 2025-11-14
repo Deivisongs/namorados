@@ -55,7 +55,7 @@ button {
     background-color: transparent;
 }
 
-/* HEADER */
+/* HEADER FIXO */
 .header {
     display: flex;
     justify-content: space-between;
@@ -68,8 +68,32 @@ button {
     z-index: 100;
 }
 
+/* NOVO: Container da logo sticky que aparece na rolagem */
+.header-sticky-logo-container {
+    /* Garante que fique ao lado do logo-group */
+    display: none; /* Controlado pelo JS */
+    align-items: center;
+    gap: 8px; /* Espaçamento entre a logo e o texto do restaurante */
+}
+
+/* Estilo para a logo que aparece no scroll */
+.sticky-logo {
+    width: 25px; 
+    height: 25px; 
+    object-fit: contain;
+    border-radius: 6px; 
+    transition: opacity 0.3s;
+}
+
+/* Agrupador do texto do logo */
+.logo-group {
+    display: flex;
+    align-items: center;
+}
+
 .logo-text {
-    font-size: 1.5rem; 
+    /* MANTIDO O TAMANHO FIXO PARA NÃO MUDAR NA ROLAGEM */
+    font-size: 1rem; 
     font-weight: 700;
     color: var(--text-dark);
 }
@@ -106,9 +130,78 @@ button {
     padding: 16px;
 }
 
+/* --- NOVO: ESTILOS PARA O HEADER INFORMATIVO --- */
+
+.info-header {
+    display: flex;
+    align-items: center;
+    gap: 16px; 
+    padding: 16px 0; 
+    margin-bottom: 8px; 
+    border-bottom: 1px solid var(--border-color);
+}
+
+.business-logo {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    border-radius: 8px; 
+    flex-shrink: 0;
+}
+
+.info-text-wrapper {
+    flex: 1;
+}
+
+.business-name-display {
+    font-size: 1.3rem; 
+    font-weight: 700;
+    margin-bottom: 4px;
+    line-height: 1.1;
+}
+
+.status-line {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 4px;
+}
+
+.business-status {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--error-color); /* Padrão: Fechado (Vermelho) */
+}
+
+.business-status.open {
+    color: var(--primary-dark); /* Aberto (Verde Escuro) */
+}
+
+.delivery-time-display {
+    display: flex;
+    align-items: center;
+    color: var(--text-light);
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.delivery-time-display i {
+    width: 10px;
+    height: 10px;
+    margin-right: 4px;
+}
+
+.operating-hours-display {
+    font-size: 0.875rem;
+    color: var(--text-light);
+    margin-top: 4px;
+}
+
+/* AJUSTE PARA O TÍTULO PRINCIPAL */
 .main-title {
     font-size: 2rem; 
     font-weight: 700;
+    margin-top: 16px; /* Adiciona espaço após o novo info-header */
     margin-bottom: 4px;
 }
 
