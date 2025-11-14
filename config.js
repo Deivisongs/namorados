@@ -84,7 +84,7 @@ window.FREIGHT_TABLE_BY_NEIGHBORHOOD = {
     "contagem-centro": 12.00,
     "contagem-eldorado": 15.00,
     "nova lima-vale do sol": 20.00,
-    "belo horizonte-jardin sao jose": 5.00
+    "belo horizonte-jardim sao jose": 5.00
     // ADICIONE SEUS PARES CIDADE-BAIRRO AQUI
 };
 
@@ -102,5 +102,6 @@ window.DELIVERY_OPTIONS = [
     "Entrega",
     "Retirada"
 ];
+
 
 
