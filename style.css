@@ -38,7 +38,7 @@ body {
     padding-bottom: 100px;
     
     /* CENTRALIZAÇÃO NA LARGURA DE SMARTPHONE */
-    max-width: 420px; 
+    max-width: 500px; 
     margin: 0 auto;   
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); 
     min-height: 100vh; 
@@ -136,7 +136,7 @@ button {
     display: flex;
     align-items: center;
     gap: 16px; 
-    padding: 16px 0; 
+    padding: 16px 0 25px 0; 
     margin-bottom: 8px; 
     border-bottom: 1px solid var(--border-color);
 }
@@ -179,15 +179,20 @@ button {
 
 .delivery-time-display {
     display: flex;
+    justify-content: center;
     align-items: center;
+    gap: 2px;
     color: var(--text-light);
-    font-size: 0.95rem;
+    font-size: 0.7rem;
     font-weight: 500;
+    color: white;
+    padding: 0 8px 0 5px;
+    border-radius: 20px;
+    background-color: #f59f00;
 }
 
-.delivery-time-display i {
-    width: 10px;
-    height: 10px;
+.delivery-time-display > span {
+    font-size: 18px;
     margin-right: 4px;
 }
 
@@ -218,8 +223,8 @@ button {
 
 .category-title {
     font-size: 1.25rem; 
-    font-weight: 500;
-    color: var(--primary-color);
+    font-weight: 700;
+    color: var(--text-dark);
     margin-bottom: 16px;
     margin-left: 4px; 
 }
@@ -231,7 +236,7 @@ button {
     border-radius: 12px;
     box-shadow: var(--shadow);
     padding: 12px;
-    margin-bottom: 16px;
+    margin-bottom: 13px;
 }
 
 .product-image {
